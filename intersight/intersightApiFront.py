@@ -95,10 +95,119 @@ class getPhysicalDisks(Resource):
 @api.route("/intersight/vmmHosts")
 class getVmmHosts(Resource):
     def get(self):
-        vmmHostUrl = intersightUrl + "/api/v1/virtualization/Hosts"
+        vmmHostList = []
+        
+        vmmHostUrl = intersightUrl + "/api/v1/virtualization/VmwareHosts"
         response = requests.get(vmmHostUrl, verify=False, auth=AUTH)
         vmmHostJson = response.json()
-        return(vmmHostJson)
+        for i in range(len(vmmHostJson["Results"])):
+            vmmHostDict = {}
+            for respKey, respItem in vmmHostJson["Results"][i].items():
+                if respKey == "ConnectionState":
+                    vmmHostDict[respKey] = respItem
+                elif respKey == "CpuInfo":
+                    for cpuKey, cpuItem in vmmHostJson["Results"][i]["CpuInfo"].items():
+                        if cpuKey == "Cores":
+                            vmmHostDict[cpuKey] = cpuItem
+                        elif cpuKey == "Sockets":
+                            vmmHostDict[cpuKey] = cpuItem
+                        elif cpuKey == "Speed":
+                            vmmHostDict[cpuKey] = cpuItem
+                        elif cpuKey == "Vendor":
+                            vmmHostDict[cpuKey] = cpuItem
+                elif respKey == "DnsServers":
+                    vmmHostDict[respKey] = respItem
+                elif respKey == "HwPowerSTate":
+                    vmmHostDict[respKey] = respItem
+                elif respKey == "MemoryCapacity":
+                    for memKey, memItem in vmmHostJson["Results"][i]["MemoryCapacity"].items():
+                        if memKey == "Capacity":
+                            reKey = "MemCapacity"
+                            vmmHostDict[reKey] = memItem
+                        elif memKey == "Used":
+                            reKey = "MemUsed"
+                            vmmHostDict[reKey] = memItem
+                elif respKey == "Model":
+                    vmmHostDict[respKey] = respItem
+                elif respKey == "Moid":
+                    vmmHostDict[respKey] = respItem
+                elif respKey == "Name":
+                    vmmHostDict[respKey] = respItem
+                elif respKey == "NtpServers":
+                    vmmHostDict[respKey] = respItem
+                elif respKey == "ProcessorCapacity":
+                    for procCapKey, procCapItem in vmmHostJson["Results"][i]["ProcessorCapacity"].items():
+                        if procCapKey == "Capacity":
+                            reKey = "ProcCapacity"
+                            vmmHostDict[reKey] = procCapItem
+                        elif procCapKey == "Used":
+                            reKey = "ProcUsed"
+                            vmmHostDict[reKey] = procCapItem
+                elif respKey == "ProductInfo":
+                    for prodKey, prodItem in vmmHostJson["Results"][i]["ProductInfo"].items():
+                        if prodKey == "Build":
+                            vmmHostDict[prodKey] = prodItem
+                        elif prodKey == "Version":
+                            vmmHostDict[prodKey] = prodItem
+            vmmHostList.append(vmmHostDict)
+        responseData = {"vmwareHosts":vmmHostList}
+        return(responseData)
+        #return(vmmHostJson)
+
+hostMoidParser = reqparse.RequestParser()
+hostMoidParser.add_argument("host_moid", type=str)
+@api.route("/intersight/virtMachines")
+class getVirtMachines(Resource):
+    @api.expect(hostMoidParser)
+    def get(self):
+        vmList = []
+        args = hostMoidParser.parse_args()
+        virtMachinestUrl = intersightUrl + f'/api/v1/search/SearchItems?$filter=(Host.Moid eq \'{args.host_moid}\')'
+        #virtMachinestUrl = "https://dev-intersight.thor.iws.navy.mil/api/v1/search/SearchItems?$filter=(Host.Moid%20eq%20%2764a81cb2736c6f2d30dc35b6%27)"
+        response = requests.get(virtMachinestUrl, verify=False, auth=AUTH)
+        virtMachinesJson = response.json()
+        for i in range(len(virtMachinesJson["Results"])):
+            vmDict = {}
+            for respKey, respItem in virtMachinesJson["Results"][i].items():
+                if respKey == "ConnectionState":
+                    vmDict[respKey] = respItem
+                elif respKey == "CpuUtilization":
+                    vmDict[respKey] = respItem
+                elif respKey == "DnsServerList":
+                    vmDict[respKey] = respItem
+                elif respKey == "GuestInfo":
+                    for guestInfoKey, guestInfoItem in virtMachinesJson["Results"][i]["GuestInfo"].items():
+                        if guestInfoKey == "Hostname":
+                            vmDict[guestInfoKey] = guestInfoItem
+                        elif guestInfoKey == "IpAddress":
+                            vmDict[guestInfoKey] = guestInfoItem
+                        elif guestInfoKey == "OperatingSystem":
+                            vmDict[guestInfoKey] = guestInfoItem
+                elif respKey == "GuestState":
+                    vmDict[respKey] = respItem
+                elif respKey == "MemoryCapacity":
+                    for memKey, memItem in virtMachinesJson["Results"][i]["MemoryCapacity"].items():
+                        if memKey == "Capacity":
+                            reKey = "MemCapacity"
+                            vmDict[reKey] = memItem
+                        elif memKey == "Used":
+                            reKey = "MemUsed"
+                            vmDict[reKey] = memItem
+                elif respKey == "MemoryUtilization":
+                    vmDict[respKey] = respItem
+                elif respKey == "PowerState":
+                    vmDict[respKey] = respItem
+                elif respKey == "ProcessorCapacity":
+                    for procCapKey, procCapItem in virtMachinesJson["Results"][i]["ProcessorCapacity"].items():
+                        if procCapKey == "Capacity":
+                            reKey = "vCPU_Capacity"
+                            vmDict[reKey] = procCapItem
+                        elif procCapKey == "Used":
+                            reKey = "vCPU_Used"
+                            vmDict[reKey] = procCapItem
+                vmList.append(vmDict)
+        responseData = {"virtualMachines":vmList}
+        return(responseData)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5002)

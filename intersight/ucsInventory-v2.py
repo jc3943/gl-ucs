@@ -13,19 +13,27 @@ API_BASE_URL = "http://localhost:5002"
 
 @click.command()
 @click.option("--name", type=str, help='Hostname of server')
-@click.option("--type", type=click.Choice(['svrSummary', 'diskInventory']), help='[default: svrSummary]', show_default=True, required=True)
+@click.option("--type", type=click.Choice(['svrSummary', 'diskInventory', 'vmmHost', 'vmmInventory']), help='[default: svrSummary]', show_default=True, required=True)
 def getUcsInventory(name, type):
     diskList = []
     outFilePath = os.environ['dataPath']
     outFileName = outFilePath + "/" + type + ".csv"
     svrApiEndpoint = "/intersight/serverSummary"
+    vmmHostApiEndpoint = "/intersight/vmmHosts"
     if type == "svrSummary":
         apiEndpoint = "/intersight/serverSummary"
     elif type == "diskInventory":
         apiEndpoint = "/intersight/physicalDisks"
+    elif type == "vmmHost":
+        apiEndpoint = "/intersight/vmmHosts"
+    elif type == "vmmInventory":
+        apiEndpoint = "/intersight/virtMachines"
+    svrApiTarget = API_BASE_URL + svrApiEndpoint
+    vmmHostApiTargert = API_BASE_URL + vmmHostApiEndpoint
     apiTarget = API_BASE_URL + apiEndpoint
-    responseJson = requests.get(apiTarget, verify=False).json()
+    #responseJson = requests.get(apiTarget, verify=False).json()
     if type == "svrSummary":
+        responseJson = requests.get(svrApiTarget, verify=False).json()
         print(responseJson)
         keys = responseJson['servers'][0].keys()
         with open(outFileName, 'w', newline='') as output_file:
@@ -48,6 +56,23 @@ def getUcsInventory(name, type):
             dict_writer.writeheader()
             dict_writer.writerows(diskList)
     #print(responseJson)
+    elif type == "vmmHost":
+        responseJson = requests.get(vmmHostApiTargert, verify=False).json()
+        print(responseJson)
+        keys = responseJson['vmwareHosts'][0].keys()
+        with open(outFileName, 'w', newline='') as output_file:
+            dict_writer = csv.DictWriter(output_file, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(responseJson['vmwareHosts'])
+    elif type == "vmmInventory":
+        svrSummaryJson = requests.get(svrApiTarget, verify=False).json()
+        for i in range(len(svrSummaryJson['servers'])):
+            deviceMoid = svrSummaryJson['servers'][i]['DeviceMoId']
+            vmUrl = apiTarget + f'?host_moid={deviceMoid}'
+            vmInvJson = requests.get(vmUrl, verify=False).json()
+            print(deviceMoid)
+            print(vmInvJson)
+        #print(svrSummaryJson)
 
 
 
