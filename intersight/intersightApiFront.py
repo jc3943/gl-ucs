@@ -195,6 +195,11 @@ class getVirtMachines(Resource):
                             vmDict[reKey] = memItem
                 elif respKey == "MemoryUtilization":
                     vmDict[respKey] = respItem
+                elif respKey == "Moid":
+                    reKey = "vmMoid"
+                    vmDict[reKey] = respItem
+                elif respKey == "Name":
+                    vmDict[respKey] = respItem
                 elif respKey == "PowerState":
                     vmDict[respKey] = respItem
                 elif respKey == "ProcessorCapacity":
@@ -205,8 +210,9 @@ class getVirtMachines(Resource):
                         elif procCapKey == "Used":
                             reKey = "vCPU_Used"
                             vmDict[reKey] = procCapItem
-                vmList.append(vmDict)
+            vmList.append(vmDict)
         responseData = {"virtualMachines":vmList}
+        #return(virtMachinesJson)
         return(responseData)
 
 if __name__ == "__main__":

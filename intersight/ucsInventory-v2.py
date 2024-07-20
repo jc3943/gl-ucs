@@ -16,6 +16,7 @@ API_BASE_URL = "http://localhost:5002"
 @click.option("--type", type=click.Choice(['svrSummary', 'diskInventory', 'vmmHost', 'vmmInventory']), help='[default: svrSummary]', show_default=True, required=True)
 def getUcsInventory(name, type):
     diskList = []
+    vmAllList = []
     outFilePath = os.environ['dataPath']
     outFileName = outFilePath + "/" + type + ".csv"
     svrApiEndpoint = "/intersight/serverSummary"
@@ -65,14 +66,26 @@ def getUcsInventory(name, type):
             dict_writer.writeheader()
             dict_writer.writerows(responseJson['vmwareHosts'])
     elif type == "vmmInventory":
-        svrSummaryJson = requests.get(svrApiTarget, verify=False).json()
-        for i in range(len(svrSummaryJson['servers'])):
-            deviceMoid = svrSummaryJson['servers'][i]['DeviceMoId']
-            vmUrl = apiTarget + f'?host_moid={deviceMoid}'
+        vmmHostJson = requests.get(vmmHostApiTargert, verify=False).json()
+        for i in range(len(vmmHostJson['vmwareHosts'])):
+            hostMoid = vmmHostJson['vmwareHosts'][i]['Moid']
+            vmUrl = apiTarget + f'?host_moid={hostMoid}'
+            print(vmUrl)
             vmInvJson = requests.get(vmUrl, verify=False).json()
-            print(deviceMoid)
-            print(vmInvJson)
-        #print(svrSummaryJson)
+            for k in range(len(vmInvJson["virtualMachines"])):
+                #print(hostMoid)
+                vmHostDict = vmInvJson["virtualMachines"][k]
+                vmHostDict['hostMoid'] = vmmHostJson['vmwareHosts'][i]['Moid']
+                vmHostDict['hostName'] = vmmHostJson['vmwareHosts'][i]['Name']
+                vmAllList.append(vmHostDict)
+            
+            #print(vmInvJson)
+            keys = vmAllList[0].keys()
+        with open(outFileName, 'w', newline='') as output_file:
+            dict_writer = csv.DictWriter(output_file, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(vmAllList)
+        print(vmAllList)
 
 
 
