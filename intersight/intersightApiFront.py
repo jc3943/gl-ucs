@@ -3,16 +3,31 @@
 
 from flask import Flask
 from flask_restx import Resource, Api, reqparse
-from intersight_auth import IntersightAuth
+from intersight_auth import IntersightAuth, repair_pem
 import requests
+import hvac
 
 app = Flask(__name__)
 api = Api(app)
 
+# AUTH = IntersightAuth(
+#     secret_key_filename='creds/dev-isight-SecretKey.txt',
+#     api_key_id='6457bfa47564612d300f0917/6457cbbd7564612d30cb32ab/64595f8c7564612d30cb47cc'
+#     )
+
+#export VAULT_ADDR='ip address for vault'
+#export VAULT_TOKEN='vault access token'
+
+#get credentials from vault for Intersight API access
+client = hvac.Client(verify=False)
+key_id = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("api_key_id")
+key_string = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("secret_key_string")
+
 AUTH = IntersightAuth(
-    secret_key_filename='creds/dev-isight-SecretKey.txt',
-    api_key_id='6457bfa47564612d300f0917/6457cbbd7564612d30cb32ab/64595f8c7564612d30cb47cc'
+    secret_key_string=key_string,
+    api_key_id=key_id
     )
+
 intersightUrl = "https://dev-intersight.thor.iws.navy.mil"
 
 @api.route("/intersight/serverSummary")
