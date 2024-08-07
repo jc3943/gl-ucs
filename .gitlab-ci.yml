@@ -61,7 +61,7 @@ upDateSrc:
   script:
     - git config --global user.name jeff.comer
     - git config --global user.email jeff.comer@gitlab.com
-    - git remote add -m master http://gl-ucs-token:7ptfVzxxhDmgqns4Qv95@172.16.14.132/jeff.comer/gl-ucs.git
+    - git remote add origin http://gl-ucs-token:7ptfVzxxhDmgqns4Qv95@172.16.14.132/jeff.comer/gl-ucs.git
     - git add data/*
     - git commit -m "updating source with inventory csv data"
     - git push origin $CI_COMMIT_REF_NAME HEAD:master -o ci.skip
