@@ -16,7 +16,6 @@ getPhyInv:
     expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
-    - sleep 300
   only:
     - master
 
@@ -60,7 +59,11 @@ upDateSrc:
       - data/ucs
     expire_in: 1 hour
   script:
-    - sleep 300
+    - git config --global user.name jeff.comer
+    - git config --global user.email jeff.comer@gitlab.com
+    - git remote add gitlab_origin http://gl-ucs-token:7ptfVzxxhDmgqns4Qv95@172.16.14.132/jeff.comer/gl-ucs.git
+    - git commit -m "updating source with inventory csv data"
+    - git push origin $CI_COMMIT_REF_NAME -o ci.skip
   needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInf"]
   only:
     - master
