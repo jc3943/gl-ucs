@@ -11,8 +11,8 @@ app = Flask(__name__)
 api = Api(app)
 
 # AUTH = IntersightAuth(
-#     secret_key_filename='creds/dev-isight-SecretKey.txt',
-#     api_key_id='6457bfa47564612d300f0917/6457cbbd7564612d30cb32ab/64595f8c7564612d30cb47cc'
+#     secret_key_filename='path_to_the_secrete_key',
+#     api_key_id='contents of the key id'
 #     )
 
 #export VAULT_ADDR='ip address for vault'
@@ -22,6 +22,10 @@ api = Api(app)
 client = hvac.Client(verify=False)
 key_id = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("api_key_id")
 key_string = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("secret_key_string")
+
+#get cimc credentials from vault for redfish access
+cimc_user = client.secrets.kv.v2.read_secret_version(mount_point='cimc', path="cimc-admin").get("data").get("data").get("username")
+cimc_pw = client.secrets.kv.v2.read_secret_version(mount_point='cimc', path="cimc-admin").get("data").get("data").get("password")
 
 AUTH = IntersightAuth(
     secret_key_string=key_string,
@@ -215,6 +219,8 @@ class getVirtMachines(Resource):
                     vmDict[reKey] = respItem
                 elif respKey == "Name":
                     vmDict[respKey] = respItem
+                elif respKey == "ObjectType":
+                    vmDict[respKey] = respItem
                 elif respKey == "PowerState":
                     vmDict[respKey] = respItem
                 elif respKey == "ProcessorCapacity":
@@ -230,5 +236,28 @@ class getVirtMachines(Resource):
         #return(virtMachinesJson)
         return(responseData)
 
+cimcIpParser = reqparse.RequestParser()
+cimcIpParser.add_argument("cimc_ip", type=str)
+@api.route("/imc/pwrStats")
+class getUcsPwrStats(Resource):
+    @api.expect(cimcIpParser)
+    def get(self):
+        args = cimcIpParser.parse_args()
+        if (args.cimc_ip != ""):
+            hostPwrStats = {}
+            pwrDict = {}
+            pwrStatsUrl = f'https://{args.cimc_ip}/redfish/v1/Chassis/1/Power'
+            response = requests.get(pwrStatsUrl, auth=(cimc_user, cimc_pw), verify=False).json()
+            for respKey, respItem in response.items():
+                if respKey == "PowerControl":
+                    pwrDict["sysAvgWatts"] = response["PowerControl"][0]["PowerMetrics"]["AverageConsumedWatts"]
+                    pwrDict["sysMaxWatts"] = response["PowerControl"][0]["PowerMetrics"]["MaxConsumedWatts"]
+                    pwrDict["sysMinWatts"] = response["PowerControl"][0]["PowerMetrics"]["MinConsumedWatts"]
+                    pwrDict["sysConsumedWatts"] = response["PowerControl"][0]["PowerConsumedWatts"]
+            hostPwrStats = {args.cimc_ip:pwrDict}
+        return(hostPwrStats)
+        #return(response)
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=True, port=5002, host='0.0.0.0')

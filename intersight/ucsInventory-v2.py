@@ -17,6 +17,7 @@ API_BASE_URL = "http://localhost:5002"
 def getUcsInventory(name, type):
     diskList = []
     vmAllList = []
+    vmFilteredList = []
     outFilePath = os.environ['dataPath']
     outFileName = outFilePath + "/" + type + ".csv"
     svrApiEndpoint = "/intersight/serverSummary"
@@ -42,6 +43,7 @@ def getUcsInventory(name, type):
             dict_writer.writeheader()
             dict_writer.writerows(responseJson['servers'])
     elif type == "diskInventory":
+        responseJson = requests.get(apiTarget, verify=False).json()
         for i in range(len(responseJson['diskInventory'])):
             diskDict = responseJson['diskInventory'][i]
             for k in range(len(responseJson['servers'])):
@@ -79,12 +81,15 @@ def getUcsInventory(name, type):
                 vmHostDict['hostName'] = vmmHostJson['vmwareHosts'][i]['Name']
                 vmAllList.append(vmHostDict)
             
-            #print(vmInvJson)
-            keys = vmAllList[0].keys()
+        for j in range(len(vmAllList)):
+            if (vmAllList[j]["ObjectType"] == "virtualization.VmwareVirtualMachine"):
+                vmFilteredList.append(vmAllList[j])
+            #keys = vmAllList[0].keys()
+        keys = vmFilteredList[0].keys()
         with open(outFileName, 'w', newline='') as output_file:
             dict_writer = csv.DictWriter(output_file, keys)
             dict_writer.writeheader()
-            dict_writer.writerows(vmAllList)
+            dict_writer.writerows(vmFilteredList)
         print(vmAllList)
 
 
