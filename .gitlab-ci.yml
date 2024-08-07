@@ -6,13 +6,13 @@ image: jcomer3943/ubuntu:flask
 
 variables:
   varPath: vars/$CI_COMMIT_REF_NAME
-  dataPath: /builds/jeff.comer/gl-ucs/
+  dataPath: /builds/jeff.comer/gl-ucs/data/ucs
 
 getPhyInv:
   stage: getInv
   artifacts:
     paths:
-      - data/ucs/
+      - /builds/jeff.comer/gl-ucs/data/ucs
     expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
@@ -24,7 +24,7 @@ getDiskInv:
   stage: getInv
   artifacts:
     paths:
-      - data/ucs/
+      - /builds/jeff.comer/gl-ucs/data/ucs
     expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
@@ -35,7 +35,7 @@ getVmHostInv:
   stage: getInv
   artifacts:
     paths:
-      - data/ucs/
+      - /builds/jeff.comer/gl-ucs/data/ucs
     expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
@@ -46,7 +46,7 @@ getVmInf:
   stage: getInv
   artifacts:
     paths:
-      - data/ucs/
+      - /builds/jeff.comer/gl-ucs/data/ucs
     expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
@@ -57,7 +57,7 @@ upDateSrc:
   stage: updateSrc
   artifacts:
     paths:
-      - data/ucs/
+      - /builds/jeff.comer/gl-ucs/data/ucs
     expire_in: 1 hour
   script:
     - sleep 300
