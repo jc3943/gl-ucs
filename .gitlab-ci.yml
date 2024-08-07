@@ -1,5 +1,6 @@
 stages:
   - getInv
+  - updateSrc
 
 image: jcomer3943/ubuntu:flask
 
@@ -9,32 +10,47 @@ variables:
 
 getPhyInv:
   stage: getInv
+  artifacts:
+    untracked: true
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
-    - sleep 60
   only:
     - master
 
 getDiskInv:
   stage: getInv
+  artifacts:
+    untracked: true
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
-    - sleep 60
   only:
     - master
 
 getVmHostInv:
   stage: getInv
+  artifacts:
+    untracked: true
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
-    - sleep 60
   only:
     - master
 
 getVmInf:
   stage: getInv
+  artifacts:
+    untracked: true
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
-    - sleep 60
+  only:
+    - master
+
+upDateSrc:
+  stage: updateSrc
+  artifacts:
+    untracked: true
+  script:
+    - sleep 300
+  dependencies:
+    - getInv
   only:
     - master
