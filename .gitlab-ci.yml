@@ -59,6 +59,7 @@ upDateSrc:
     paths:
       data/ucs/
     expire_in: 1 hour
+  script:
     - sleep 300
   needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInf"]
   only:
