@@ -50,7 +50,6 @@ upDateSrc:
     untracked: true
   script:
     - sleep 300
-  dependencies:
-    - getInv
+  needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInf"]
   only:
     - master
