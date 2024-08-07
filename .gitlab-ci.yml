@@ -11,16 +11,21 @@ variables:
 getPhyInv:
   stage: getInv
   artifacts:
-    untracked: true
+    paths:
+      data/ucs/
+    expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
+    - sleep 300
   only:
     - master
 
 getDiskInv:
   stage: getInv
   artifacts:
-    untracked: true
+    paths:
+      data/ucs/
+    expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
   only:
@@ -29,7 +34,9 @@ getDiskInv:
 getVmHostInv:
   stage: getInv
   artifacts:
-    untracked: true
+    paths:
+      data/ucs/
+    expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
   only:
@@ -38,7 +45,9 @@ getVmHostInv:
 getVmInf:
   stage: getInv
   artifacts:
-    untracked: true
+    paths:
+      data/ucs/
+    expire_in: 1 hour
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
   only:
@@ -47,8 +56,9 @@ getVmInf:
 upDateSrc:
   stage: updateSrc
   artifacts:
-    untracked: true
-  script:
+    paths:
+      data/ucs/
+    expire_in: 1 hour
     - sleep 300
   needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInf"]
   only:
