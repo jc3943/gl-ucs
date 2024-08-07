@@ -6,7 +6,7 @@ image: jcomer3943/ubuntu:flask
 
 variables:
   varPath: vars/$CI_COMMIT_REF_NAME
-  dataPath: /builds/jeff.comer/gl-ucs/data/ucs
+  dataPath: data/ucs
 
 getPhyInv:
   stage: getInv
