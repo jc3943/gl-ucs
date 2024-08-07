@@ -41,7 +41,7 @@ getVmHostInv:
   only:
     - master
 
-getVmInf:
+getVmInv:
   stage: getInv
   artifacts:
     paths:
@@ -52,7 +52,7 @@ getVmInf:
   only:
     - master
 
-upDateSrc:
+updateSrc:
   stage: updateSrc
   artifacts:
     paths:
