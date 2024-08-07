@@ -1,0 +1,34 @@
+stages:
+  - getInv
+
+image: jcomer3943/ubuntu:flask
+
+variables:
+  varPath: vars/$CI_COMMIT_REF_NAME
+  dataPath: data/ucs
+
+getPhyInv:
+  stage: getInv
+  script:
+    - python3 intersight/ucsInventory-v2.py --type svrSummary
+
+getDiskInv:
+  stage: getInv
+  script:
+    - python3 intersight/ucsInventory-v2.py --type diskInventory
+  only:
+    - master
+
+getVmHostInv:
+  stage: getInv
+  script:
+    - python3 intersight/ucsInventory-v2.py --type vmmHost
+  only:
+    - master
+
+getVmInf:
+  stage: getInv
+  script:
+    - python3 intersight/ucsInventory-v2.py --type vmmInventory
+  only:
+    - master
