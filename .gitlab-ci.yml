@@ -11,11 +11,15 @@ getPhyInv:
   stage: getInv
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
+    - sleep 60
+  only:
+    - master
 
 getDiskInv:
   stage: getInv
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
+    - sleep 60
   only:
     - master
 
@@ -23,6 +27,7 @@ getVmHostInv:
   stage: getInv
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
+    - sleep 60
   only:
     - master
 
@@ -30,5 +35,6 @@ getVmInf:
   stage: getInv
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
+    - sleep 60
   only:
     - master
