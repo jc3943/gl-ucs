@@ -66,6 +66,6 @@ updateSrc:
     - git remote set-url --push origin http://gl-ucs-token:7ptfVzxxhDmgqns4Qv95@172.16.14.132/jeff.comer/gl-ucs.git
     - git commit -m "updating source with inventory csv data"
     - git push origin $CI_COMMIT_REF_NAME -o ci.skip
-  needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInf"]
+  needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInv"]
   only:
     - master
