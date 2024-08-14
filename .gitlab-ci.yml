@@ -1,4 +1,5 @@
 stages:
+  - claimDevices
   - getInv
   - updateSrc
 
@@ -6,6 +7,16 @@ stages:
 variables:
   varPath: vars/$CI_COMMIT_REF_NAME
   dataPath: data/ucs
+  TF_VAR_varPath: vars/master
+  TF_VAR_imcSeedFile="../../../vars/master/imc/hostIpAddrs.csv"
+
+claimDevices:
+  stage: claimDevices
+  image: jc3943/ubuntu-tfe:20220911
+  script:
+    - cd intersight/devClaims
+    - terraform init
+    - terraform apply -var-file=master.tfvars -auto-approve
 
 getPhyInv:
   stage: getInv
