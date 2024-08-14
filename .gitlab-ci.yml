@@ -2,7 +2,6 @@ stages:
   - getInv
   - updateSrc
 
-image: jcomer3943/ubuntu:flask
 
 variables:
   varPath: vars/$CI_COMMIT_REF_NAME
@@ -14,6 +13,7 @@ getPhyInv:
     paths:
       - data/ucs
     expire_in: 1 hour
+  image: jcomer3943/ubuntu:flask
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
   only:
@@ -25,6 +25,7 @@ getDiskInv:
     paths:
       - data/ucs
     expire_in: 1 hour
+  image: jcomer3943/ubuntu:flask
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
   only:
@@ -36,6 +37,7 @@ getVmHostInv:
     paths:
       - data/ucs
     expire_in: 1 hour
+  image: jcomer3943/ubuntu:flask
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
   only:
@@ -47,6 +49,7 @@ getVmInv:
     paths:
       - data/ucs
     expire_in: 1 hour
+  image: jcomer3943/ubuntu:flask
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
   only:
@@ -58,6 +61,7 @@ updateSrc:
     paths:
       - data/ucs
     expire_in: 1 hour
+  image: jcomer3943/ubuntu:flask
   script:
     - git config --global user.name jeff.comer
     - git config --global user.email jeff.comer@gitlab.com
