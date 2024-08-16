@@ -250,10 +250,9 @@ class getUcsPwrStats(Resource):
         else:
             serverSummaryURL = "http://172.0.1.10:5002/intersight/serverSummary"
             serverSummaryJson = requests.get(serverSummaryURL, verify=False).json()
-            print(serverSummaryJson["servers"][0]["MgmtIpAddress"])
-            print(serverSummaryJson)
-            print(len(serverSummaryJson)["servers"])
-            for i in range(len(serverSummaryJson)["servers"]):
+            print(serverSummaryJson["servers"])
+            print(type(serverSummaryJson["servers"]))
+            for i in range(len(serverSummaryJson["servers"])):
                 perHostPwrStats = getHostPwrStats(serverSummaryJson["servers"][i]["MgmtIpAddress"])
                 pwrStats.update(perHostPwrStats)
         #return(serverSummaryJson["servers"][0]["MgmtIpAddress"])
