@@ -243,20 +243,37 @@ class getUcsPwrStats(Resource):
     @api.expect(cimcIpParser)
     def get(self):
         args = cimcIpParser.parse_args()
-        if (args.cimc_ip != ""):
-            hostPwrStats = {}
-            pwrDict = {}
-            pwrStatsUrl = f'https://{args.cimc_ip}/redfish/v1/Chassis/1/Power'
-            response = requests.get(pwrStatsUrl, auth=(cimc_user, cimc_pw), verify=False).json()
-            for respKey, respItem in response.items():
-                if respKey == "PowerControl":
-                    pwrDict["sysAvgWatts"] = response["PowerControl"][0]["PowerMetrics"]["AverageConsumedWatts"]
-                    pwrDict["sysMaxWatts"] = response["PowerControl"][0]["PowerMetrics"]["MaxConsumedWatts"]
-                    pwrDict["sysMinWatts"] = response["PowerControl"][0]["PowerMetrics"]["MinConsumedWatts"]
-                    pwrDict["sysConsumedWatts"] = response["PowerControl"][0]["PowerConsumedWatts"]
-            hostPwrStats = {args.cimc_ip:pwrDict}
-        return(hostPwrStats)
+        svrList = []
+        pwrStats = {}
+        if args.get("cimc_ip"):
+            pwrStats = getHostPwrStats(args.cimc_ip)
+        else:
+            serverSummaryURL = "http://172.0.1.10:5002/intersight/serverSummary"
+            serverSummaryJson = requests.get(serverSummaryURL, verify=False).json()
+            print(serverSummaryJson["servers"][0]["MgmtIpAddress"])
+            print(serverSummaryJson)
+            print(len(serverSummaryJson)["servers"])
+            for i in range(len(serverSummaryJson)["servers"]):
+                perHostPwrStats = getHostPwrStats(serverSummaryJson["servers"][i]["MgmtIpAddress"])
+                pwrStats.update(perHostPwrStats)
+        #return(serverSummaryJson["servers"][0]["MgmtIpAddress"])
+        return(pwrStats)
         #return(response)
+
+def getHostPwrStats(cimc):
+    hostPwrStats = {}
+    hostPwrStats = {}
+    pwrDict = {}
+    pwrStatsUrl = f'https://{cimc}/redfish/v1/Chassis/1/Power'
+    response = requests.get(pwrStatsUrl, auth=(cimc_user, cimc_pw), verify=False).json()
+    for respKey, respItem in response.items():
+        if respKey == "PowerControl":
+            pwrDict["sysAvgWatts"] = response["PowerControl"][0]["PowerMetrics"]["AverageConsumedWatts"]
+            pwrDict["sysMaxWatts"] = response["PowerControl"][0]["PowerMetrics"]["MaxConsumedWatts"]
+            pwrDict["sysMinWatts"] = response["PowerControl"][0]["PowerMetrics"]["MinConsumedWatts"]
+            pwrDict["sysConsumedWatts"] = response["PowerControl"][0]["PowerConsumedWatts"]
+    hostPwrStats = {cimc:pwrDict}
+    return hostPwrStats
 
 
 if __name__ == "__main__":
