@@ -255,7 +255,6 @@ class getUcsPwrStats(Resource):
             for i in range(len(serverSummaryJson["servers"])):
                 perHostPwrStats = getHostPwrStats(serverSummaryJson["servers"][i]["MgmtIpAddress"])
                 pwrStats.update(perHostPwrStats)
-        #return(serverSummaryJson["servers"][0]["MgmtIpAddress"])
         return(pwrStats)
         #return(response)
 
