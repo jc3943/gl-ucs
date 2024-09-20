@@ -14,12 +14,12 @@ claimDevices:
   stage: claimDevices
   image: jc3943/ubuntu-tfe:20220911
   script:
-    - python3 imc/imcNetSet.py -u admin -p DEVP@ssw0rd -i $varPath/imc/hostIpAddrs.csv
+    - python3 imc/imcNetSet.py -u admin -p DEVP@ssw0rd -i $varPath/imc/hostIpAddrs.csvntp_servers:
     - cd intersight/devClaims
     - terraform init
     - terraform apply -var-file=master.tfvars -auto-approve
     - cd ../../
-    - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
+    - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.some.domain.com -i $varPath/imc/hostIpAddrs.csv
 
 getPhyInv:
   stage: getInv

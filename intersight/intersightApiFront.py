@@ -32,7 +32,7 @@ AUTH = IntersightAuth(
     api_key_id=key_id
     )
 
-intersightUrl = "https://dev-intersight.thor.iws.navy.mil"
+intersightUrl = "https://dev-intersight.some.domain.com"
 
 @api.route("/intersight/serverSummary")
 class getServerSummary(Resource):
@@ -182,7 +182,7 @@ class getVirtMachines(Resource):
         vmList = []
         args = hostMoidParser.parse_args()
         virtMachinestUrl = intersightUrl + f'/api/v1/search/SearchItems?$filter=(Host.Moid eq \'{args.host_moid}\')'
-        #virtMachinestUrl = "https://dev-intersight.thor.iws.navy.mil/api/v1/search/SearchItems?$filter=(Host.Moid%20eq%20%2764a81cb2736c6f2d30dc35b6%27)"
+        #virtMachinestUrl = "https://dev-intersight.some.domain.com/api/v1/search/SearchItems?$filter=(Host.Moid%20eq%20%2764a81cb2736c6f2d30dc35b6%27)"
         response = requests.get(virtMachinestUrl, verify=False, auth=AUTH)
         virtMachinesJson = response.json()
         for i in range(len(virtMachinesJson["Results"])):
@@ -251,7 +251,6 @@ class getUcsPwrStats(Resource):
             serverSummaryURL = "http://172.0.1.10:5002/intersight/serverSummary"
             serverSummaryJson = requests.get(serverSummaryURL, verify=False).json()
             print(serverSummaryJson["servers"])
-            print(type(serverSummaryJson["servers"]))
             for i in range(len(serverSummaryJson["servers"])):
                 perHostPwrStats = getHostPwrStats(serverSummaryJson["servers"][i]["MgmtIpAddress"])
                 pwrStats.update(perHostPwrStats)
