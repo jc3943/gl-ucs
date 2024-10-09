@@ -9,6 +9,7 @@ import os
 import csv
 
 API_BASE_URL = "http://172.0.1.10:5002"
+#API_BASE_URL = "http://localhost:5002"
 
 
 @click.command()

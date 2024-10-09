@@ -32,7 +32,7 @@ AUTH = IntersightAuth(
     api_key_id=key_id
     )
 
-intersightUrl = "https://dev-intersight.some.domain.com"
+intersightUrl = "https://dev-intersight.some.domain"
 
 @api.route("/intersight/serverSummary")
 class getServerSummary(Resource):
