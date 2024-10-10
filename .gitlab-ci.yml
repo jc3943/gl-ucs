@@ -14,7 +14,7 @@ claimDevices:
   stage: claimDevices
   image: jc3943/ubuntu-tfe:20220911
   script:
-    - python3 imc/imcNetSet.py -u admin -p DEVP@ssw0rd -i $varPath/imc/hostIpAddrs.csvntp_servers
+    - python3 imc/imcNetSet.py -u admin -p DEVP@ssw0rd -i $varPath/imc/hostIpAddrs.csv
     - cd intersight/devClaims
     - terraform init
     - terraform apply -var-file=master.tfvars -auto-approve
