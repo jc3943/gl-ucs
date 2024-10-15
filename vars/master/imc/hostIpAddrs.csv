@@ -1,4 +1,2 @@
 cimc,type,hostName,dns1,dns2,ntp1,ntp2,vnicsAdd,uplinkPorts,pcieOrder,chassisSerial
 172.20.106.41,esxi,sandbox-bm-esxi,172.16.10.100,172.20.1.254,172.20.1.254,172.16.20.253,eth8;eth9,Port-3;Port-4,2.0;2.1,WMP2443017J
-172.20.1.20,hx,cg61-hx-01,172.16.10.100,172.20.1.254,172.20.1.254,172.16.20.253,eth8;eth9,Port-3;Port-4,2.0;2.1,
-172.20.2.20,hx,cg61-hx-02,172.16.10.100,172.20.1.254,172.20.1.254,172.16.20.253,eth8;eth9,Port-3;Port-4,2.0;2.1,
