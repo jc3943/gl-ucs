@@ -14,7 +14,9 @@ api = Api(app)
 #     secret_key_filename='path_to_the_secrete_key',
 #     api_key_id='contents of the key id'
 #     )
+#intersightUrl = "https://dev-intersight.some.domain"
 
+#the values below are needed for vault client access.  set accordingly if using vault via pipeline global env or etc
 #export VAULT_ADDR='ip address for vault'
 #export VAULT_TOKEN='vault access token'
 
@@ -22,6 +24,7 @@ api = Api(app)
 client = hvac.Client(verify=False)
 key_id = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("api_key_id")
 key_string = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("secret_key_string")
+intersightUrl = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("target-url")
 
 #get cimc credentials from vault for redfish access
 cimc_user = client.secrets.kv.v2.read_secret_version(mount_point='cimc', path="cimc-admin").get("data").get("data").get("username")
@@ -31,8 +34,6 @@ AUTH = IntersightAuth(
     secret_key_string=key_string,
     api_key_id=key_id
     )
-
-intersightUrl = "https://dev-intersight.some.domain"
 
 @api.route("/intersight/serverSummary")
 class getServerSummary(Resource):
