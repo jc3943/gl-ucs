@@ -103,7 +103,7 @@ installOs:
   stage: installOs
   image: jc3943/ubuntu-tfe:20220911
   script:
-    - cd cd rhel8.9/os_install
+    - cd rhel8.9/os_install
     - terraform init
     - terraform apply --var-file=../../vars/master/terraform/os_install.tfvars -auto-approve
     - cd ../../
