@@ -1,6 +1,7 @@
 resource "intersight_os_install" "os_install" {
   name = "InstallTemplate"
   description    = "Install RHEL 8.9"
+  wait_for_completion = true
   organization {
     object_type = "organization.Organization"
     moid = data.intersight_organization_organization.org.results[0].moid
@@ -54,5 +55,4 @@ resource "intersight_os_install" "os_install" {
       StorageControllerSlotId = "MRAID"
     })
   }
-  wait_for_completion = true
 }

@@ -22,6 +22,7 @@ api = Api(app)
 client = hvac.Client(verify=False)
 key_id = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("api_key_id")
 key_string = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("secret_key_string")
+intersightUrl = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("target-url")
 
 #get cimc credentials from vault for redfish access
 cimc_user = client.secrets.kv.v2.read_secret_version(mount_point='cimc', path="cimc-admin").get("data").get("data").get("username")
