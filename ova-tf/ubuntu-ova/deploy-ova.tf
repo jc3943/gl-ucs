@@ -1,3 +1,7 @@
+data "vault_generic_secret" "ubuntu" {
+  path = "app-vms/vm-creds"
+}
+
 data "vsphere_datacenter" "datacenter" {
   name = "sandbox"
 }
@@ -27,6 +31,11 @@ data "vsphere_network" "network" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
+data "vsphere_network" "network2" {
+  name          = "VM Network"
+  datacenter_id = data.vsphere_datacenter.datacenter.id
+}
+
 ## Remote OVF/OVA Source
 data "vsphere_ovf_vm_template" "ovfRemote" {
   name              = "jammy-server-cloudimg-amd64.ova"
@@ -36,7 +45,8 @@ data "vsphere_ovf_vm_template" "ovfRemote" {
   host_system_id    = data.vsphere_host.host.id
   remote_ovf_url    = "http://172.0.1.10:8080/ubuntu/jammy-server-cloudimg-amd64.ova"
   ovf_network_map = {
-    "Network 1" : data.vsphere_network.network.id
+    "Network 1" : data.vsphere_network.network.id,
+    "Network 2" : data.vsphere_network.network2.id
   }
 }
 
@@ -68,9 +78,9 @@ resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
 
   vapp {
     properties = {
-      "hostname"    = "ubuntu-jammy-test",
-      "password"    = "DEVP@ssw0rd",
-      "public-keys" = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAF87bhCRUY3gHgJRTWF7nxQrMaxgK5586qFlmz3WlpxRu2JnSdV4a62RDqJwAI56/HYglV6c9MPGd0emRRtvCNgkQBfl1Bu1P4e0Vids98IgWCcjAqaiaipssbPmw0XASRtI98ewEyl7cJ4N+YB4rPOoBBbWAZHJav5s/6kdmtomQH95A== root@localhost.localdomain"
+      "hostname"    = data.vault_generic_secret.ubuntu.data["ubuntu-username"],
+      "password"    = data.vault_generic_secret.ubuntu.data["ubuntu-password"],
+      "public-keys" = data.vault_generic_secret.ubuntu.data["ubuntu-ssh-keys"]
     }
   }
   cdrom {

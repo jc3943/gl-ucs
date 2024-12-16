@@ -42,7 +42,7 @@ data "vsphere_ovf_vm_template" "ovfRemote" {
 
 ## Deployment of VM from Remote OVF
 resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
-  name                 = "apic602h-test"
+  name                 = "apic605h-test"
   datacenter_id        = data.vsphere_datacenter.datacenter.id
   datastore_id         = data.vsphere_datastore.datastore.id
   host_system_id       = data.vsphere_host.host.id
@@ -66,14 +66,13 @@ resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
 
   vapp {
     properties = {
-      "com.cisco.vapic.adminpassword"  = "somepassw0rd",
+      "com.cisco.vapic.adminpassword"  = "SOMEPassw0rd",
       "com.cisco.vapic.oobip"          = "172.0.1.102/24",
       "com.cisco.vapic.oobgw"          = "172.0.1.254"
+      # "adminpassword"  = "SOMEPassw0rd",
+      # "oobip"          = "172.0.1.102/24",
+      # "oobgw"          = "172.0.1.254"
     }
-  }
-
-  cdrom {
-    client_device = true
   }
 
   lifecycle {
