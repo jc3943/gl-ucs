@@ -41,6 +41,7 @@ class getServerSummary(Resource):
         svrPhysList = []
         serverSummaryURL = intersightUrl + "/api/v1/compute/PhysicalSummaries?$inlinecount=allpages"
         response = requests.get(serverSummaryURL, verify=False, auth=AUTH)
+        print(response.text)
         serverSummaryJson = response.json()
         for i in range(len(serverSummaryJson["Results"])):
             svrPhysDict = {}
@@ -249,7 +250,7 @@ class getUcsPwrStats(Resource):
         if args.get("cimc_ip"):
             pwrStats = getHostPwrStats(args.cimc_ip)
         else:
-            serverSummaryURL = "http://172.0.1.10:5002/intersight/serverSummary"
+            serverSummaryURL = "http://localhost:5002/intersight/serverSummary"
             serverSummaryJson = requests.get(serverSummaryURL, verify=False).json()
             print(serverSummaryJson["servers"])
             for i in range(len(serverSummaryJson["servers"])):
