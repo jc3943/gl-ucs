@@ -14,6 +14,18 @@ client = hvac.Client(verify=False)
 cimc_user = client.secrets.kv.v2.read_secret_version(mount_point='cimc', path="cimc-admin").get("data").get("data").get("username")
 cimc_pw = client.secrets.kv.v2.read_secret_version(mount_point='cimc', path="cimc-admin").get("data").get("data").get("password")
 
+def hostPwrOpt(oper, cimcIp):
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    baseUrl = "https://" + cimcIp + "/redfish/v1/Systems"
+    systemsResponse = requests.get(baseUrl, verify=False, auth=(cimc_user, cimc_pw))
+    systemsJson = systemsResponse.json()
+    systemsUrl = systemsJson["Members"][0]["@odata.id"]
+    pwrCycleUrl = "https://" + cimcIp + systemsUrl + "/Actions/ComputerSystem.Reset"
+    pwrCyclePayload = {"ResetType":oper}
+    pwrCycleResult = requests.post(pwrCycleUrl, json=pwrCyclePayload, verify=False, auth=(cimc_user, cimc_pw))
+    print(pwrCycleResult)
+
+
 @click.command()
 @click.option("--file", type=str, help='seedfile name for cimmc addrs', required=True)
 @click.option("--op", type=click.Choice(['On', 'GracefulShutdown', 'Off', 'PowerCycle']), help='[default: on]', show_default=True, required=True)
@@ -34,18 +46,6 @@ def imcPwrOps(file, op):
 
     for thread in threads:
         thread.join()
-
-def hostPwrOpt(oper, cimcIp):
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    baseUrl = "https://" + cimcIp + "/redfish/v1/Systems"
-    systemsResponse = requests.get(baseUrl, verify=False, auth=(cimc_user, cimc_pw))
-    systemsJson = systemsResponse.json()
-    systemsUrl = systemsJson["Members"][0]["@odata.id"]
-    pwrCycleUrl = "https://" + cimcIp + systemsUrl + "/Actions/ComputerSystem.Reset"
-    pwrCyclePayload = {"ResetType":oper}
-    pwrCycleResult = requests.post(pwrCycleUrl, json=pwrCyclePayload, verify=False, auth=(cimc_user, cimc_pw))
-    print(pwrCycleResult)
-
 
 if __name__ == "__main__":
     imcPwrOps()
