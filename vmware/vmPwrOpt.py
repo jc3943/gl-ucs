@@ -5,7 +5,7 @@ import click
 import requests
 import urllib3
 import urllib.parse
-import os, threading, json
+import os, threading, json, time
 import csv
 import hvac
 import ssl
@@ -110,8 +110,21 @@ def vmPwrOps(op):
 
         for thread in threads:
             thread.join()
-        #print(vmObj)
-        #print(vmFilteredList)
+        for pwrStat in range(0, 20):
+            vmStillOn = []
+            vmStat = getOnVms(vcsaConnect)
+            for k in range(len(vmStat)):
+                vmStillOn.append(vmStat[k]['vm'])
+            vmAllOff = all((item not in vmFilteredList for item in vmStillOn))
+            if not vmAllOff:
+                print("Powering Down: ", vmStillOn)
+                time.sleep(30)
+                pwrStat += 1
+            elif (pwrStat >= 20):
+                print("Timed out waiting for vm's to power off: ", vmStillOn)
+                exit(1)
+            if vmAllOff:
+                print("All phase 1 vm's have powered off: ", vmStillOn)
     elif (op == "start"):
         vmFilteredList = []
         threads = []

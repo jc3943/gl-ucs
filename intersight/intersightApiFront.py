@@ -41,7 +41,7 @@ class getServerSummary(Resource):
         svrPhysList = []
         serverSummaryURL = intersightUrl + "/api/v1/compute/PhysicalSummaries?$inlinecount=allpages"
         response = requests.get(serverSummaryURL, verify=False, auth=AUTH)
-        print(response.text)
+        print(response)
         serverSummaryJson = response.json()
         for i in range(len(serverSummaryJson["Results"])):
             svrPhysDict = {}
