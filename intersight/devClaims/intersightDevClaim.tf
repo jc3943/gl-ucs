@@ -4,10 +4,6 @@ locals {
  instances = csvdecode(file(var.imcSeedFile))
 }
 
-# locals {
-#   instances = csvdecode(file("../../vars/master/imc/hostIpAddrs.csv"))
-# }
-
 resource "intersight_appliance_device_claim" "intersight_imc_claim" {
   for_each = { for inst in local.instances : inst.cimc => inst }
   hostname        = each.value.cimc

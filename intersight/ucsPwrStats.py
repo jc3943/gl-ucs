@@ -15,7 +15,7 @@ import datetime
 # sys.path.append('/usr/lib/python3.9/site-packages')
 # sys.path.append('/usr/lib/python3.6/site-packages')
 
-API_BASE_URL = "http://172.0.1.10:5002"
+API_BASE_URL = "http://172.16.113.2:5002"
 API_ENDPOINT = "/imc/pwrStats"
 
 @click.command()

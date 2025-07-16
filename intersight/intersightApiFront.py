@@ -40,8 +40,9 @@ class getServerSummary(Resource):
     def get(self):
         svrPhysList = []
         serverSummaryURL = intersightUrl + "/api/v1/compute/PhysicalSummaries?$inlinecount=allpages"
+        print(serverSummaryURL)
         response = requests.get(serverSummaryURL, verify=False, auth=AUTH)
-        print(response.text)
+        print(response)
         serverSummaryJson = response.json()
         for i in range(len(serverSummaryJson["Results"])):
             svrPhysDict = {}
@@ -172,8 +173,8 @@ class getVmmHosts(Resource):
                             vmmHostDict[prodKey] = prodItem
             vmmHostList.append(vmmHostDict)
         responseData = {"vmwareHosts":vmmHostList}
-        return(responseData)
-        #return(vmmHostJson)
+        #return(responseData)
+        return(vmmHostJson)
 
 hostMoidParser = reqparse.RequestParser()
 hostMoidParser.add_argument("host_moid", type=str)
