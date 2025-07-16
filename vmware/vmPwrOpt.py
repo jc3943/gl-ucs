@@ -85,7 +85,8 @@ def getOnVms(session_id):
 
 @click.command()
 @click.option("--op", type=click.Choice(['start', 'shutdown']), help='[default: on]', show_default=True, required=True)
-def vmPwrOps(op):
+@click.option("--host", type=str, required=False)
+def vmPwrOps(op, host):
     vcsaConnect = vcenterConnect()
     if (op == "shutdown"):
         vmObj = getOnVms(vcsaConnect)
