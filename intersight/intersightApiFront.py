@@ -173,8 +173,8 @@ class getVmmHosts(Resource):
                             vmmHostDict[prodKey] = prodItem
             vmmHostList.append(vmmHostDict)
         responseData = {"vmwareHosts":vmmHostList}
-        #return(responseData)
-        return(vmmHostJson)
+        return(responseData)
+        #return(vmmHostJson)
 
 hostMoidParser = reqparse.RequestParser()
 hostMoidParser.add_argument("host_moid", type=str)
