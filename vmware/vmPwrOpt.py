@@ -18,6 +18,11 @@ inFileName = inFilePath + "/vmware/" + "vmPoweredOn.json"
 outFilePath = os.environ['dataPath']
 outFileName = outFilePath + "/vmware/" + "vmPoweredOn.json"
 
+#Flask front-end for Intersight
+API_BASE_URL = "http://172.16.113.2:5002"
+vmmHostApiEndpoint = "/intersight/vmmHosts"
+vmmHostApiTargert = API_BASE_URL + vmmHostApiEndpoint
+
 #get cimc credentials from vault for redfish access
 client = hvac.Client(verify=False)
 vcsa_user = client.secrets.kv.v2.read_secret_version(mount_point='vsphere', path="vcenter-creds").get("data").get("data").get("username")
@@ -70,6 +75,18 @@ def vmPwrOn(session_id, oper, vmName):
         print(f"Error starting vm {vmName}: {e}")
         return None
 
+def hostMaintenance(session_id, oper, hostName):
+    endPointUrl = f"{vcenterUrl}/api/vcenter/vm/{vmName}/power?action={oper}"
+    header = {'vmware-api-session-id':session_id}
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    try:
+        response = requests.post(endPointUrl, headers=header, verify=False)
+        response.raise_for_status()
+        print(response)
+    except requests.exceptions.RequestException as e:
+        print(f"Error entering maintenance mode for {hostName}: {e}")
+        return None
+
 def getOnVms(session_id):
     endPointUrl = f"{vcenterUrl}/api/vcenter/vm?power_states=POWERED_ON"
     header = {'vmware-api-session-id':session_id}
@@ -84,7 +101,7 @@ def getOnVms(session_id):
 
 
 @click.command()
-@click.option("--op", type=click.Choice(['start', 'shutdown']), help='[default: on]', show_default=True, required=True)
+@click.option("--op", type=click.Choice(['start', 'shutdown', 'maintenance']), help='[default: on]', show_default=True, required=True)
 @click.option("--host", type=str, required=False)
 def vmPwrOps(op, host):
     vcsaConnect = vcenterConnect()
@@ -148,6 +165,9 @@ def vmPwrOps(op, host):
 
         for thread in threads:
             thread.join()
+
+    elif (op == "maintenance"):
+        maintRespons = hostMaintenance(vcsaConnect, op, host)
         
 
 if __name__ == "__main__":
