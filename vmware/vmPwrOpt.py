@@ -23,16 +23,9 @@ API_BASE_URL = "http://172.16.113.2:5002"
 vmmHostApiEndpoint = "/intersight/vmmHosts"
 vmmHostApiTargert = API_BASE_URL + vmmHostApiEndpoint
 
-#get cimc credentials from vault for redfish access
-client = hvac.Client(verify=False)
-vcsa_user = client.secrets.kv.v2.read_secret_version(mount_point='vsphere', path="vcenter-creds").get("data").get("data").get("username")
-vcsa_pw = client.secrets.kv.v2.read_secret_version(mount_point='vsphere', path="vcenter-creds").get("data").get("data").get("password")
-vcsa_ip = client.secrets.kv.v2.read_secret_version(mount_point='vsphere', path="vcenter-creds").get("data").get("data").get("vcenter-ip")
-
-vcenterUrl = f"https://{vcsa_ip}"
 filterStringList = ["vcsa", "vapic", "stCtlVM", "vCLS", "git", "Git", "GIT", "intersight"]
 
-def vcenterConnect():
+def vcenterConnect(vcenterUrl, vcsa_user, vcsa_pw):
     endPointUrl = f"{vcenterUrl}/rest/com/vmware/cis/session"
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     try:
@@ -103,8 +96,27 @@ def getOnVms(session_id):
 @click.command()
 @click.option("--op", type=click.Choice(['start', 'shutdown', 'maintenance']), help='[default: on]', show_default=True, required=True)
 @click.option("--host", type=str, required=False)
-def vmPwrOps(op, host):
-    vcsaConnect = vcenterConnect()
+@click.option("--user", type=str, help='vcsa usernamne', required=False)
+@click.option("--pw", type=str, help='vcsa password', required=False)
+@click.option("--vcsa_host", type=str, help='vcsa ip address', required=False)
+def vmPwrOps(op, host, user, pw, vcsa_host):
+    #get cimc credentials from vault for redfish access
+    if (user):
+        vcsa_user = user
+        vcsa_pw = pw
+        vcsa_ip = vcsa_host
+    else:
+        try:
+            client = hvac.Client(verify=False)
+            vcsa_user = client.secrets.kv.v2.read_secret_version(mount_point='vsphere', path="vcenter-creds").get("data").get("data").get("username")
+            vcsa_pw = client.secrets.kv.v2.read_secret_version(mount_point='vsphere', path="vcenter-creds").get("data").get("data").get("password")
+            vcsa_ip = client.secrets.kv.v2.read_secret_version(mount_point='vsphere', path="vcenter-creds").get("data").get("data").get("vcenter-ip")
+
+        except:
+            print("Unable to retrieve vault credentials")
+            exit(1)
+        vcenterUrl = f"https://{vcsa_ip}"
+        vcsaConnect = vcenterConnect(vcenterUrl, vcsa_user, vcsa_pw)
     if (op == "shutdown"):
         vmObj = getOnVms(vcsaConnect)
         with open(outFileName, 'w') as file:
