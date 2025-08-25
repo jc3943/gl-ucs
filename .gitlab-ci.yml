@@ -3,7 +3,7 @@ stages:
   - getInv
   - updateSrc
 #  - createRepos
-#  - installOs
+  - installOs
 
 
 variables:
