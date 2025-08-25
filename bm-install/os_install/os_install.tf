@@ -1,6 +1,6 @@
 resource "intersight_os_install" "os_install" {
   name = "InstallTemplate"
-  description    = "Install RHEL 8.9"
+  description    = "Install Bare Metal OS"
   wait_for_completion = true
   organization {
     object_type = "organization.Organization"
@@ -45,14 +45,17 @@ resource "intersight_os_install" "os_install" {
     nr_source                = var.os_answers_nr_source
     network_device           = var.os_answers_netDev
   }
+  override_secure_boot = true
   install_method = "vMedia"
   install_target {
     object_type = "os.VirtualDrive"
     additional_properties = jsonencode({
       ObjectType              = "os.VirtualDrive"
       Id                      = "0"
-      Name                    = "RAID0_1"
-      StorageControllerSlotId = "MRAID"
+      #Name                    = "RAID0_1"
+      #StorageControllerSlotId = "MRAID"
+      Name                    = "NTNXOSBoot"
+      StorageControllerSlotId = "MSTOR-RAID"
     })
   }
 }

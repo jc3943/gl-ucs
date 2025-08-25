@@ -70,7 +70,7 @@ def vmPwrOn(session_id, oper, vmName, vcenterUrl):
         print(f"Error starting vm {vmName}: {e}")
         return None
 
-def getOnVms(session_id):
+def getOnVms(session_id, vcenterUrl):
     endPointUrl = f"{vcenterUrl}/api/vcenter/vm?power_states=POWERED_ON"
     header = {'vmware-api-session-id':session_id}
     try:
@@ -120,7 +120,7 @@ def vmPwrOps(op, host, user, pw, vcsa_host):
         vcenterUrl = f"https://{vcsa_ip}"
         vcsaConnect = vcenterConnect(vcenterUrl, vcsa_user, vcsa_pw)
     if (op == "shutdown" and not host):
-        vmObj = getOnVms(vcsaConnect)
+        vmObj = getOnVms(vcsaConnect, vcenterUrl)
         with open(outFileName, 'w') as file:
             json.dump(vmObj, file)
         vmFilteredList = []
@@ -144,7 +144,7 @@ def vmPwrOps(op, host, user, pw, vcsa_host):
             thread.join()
         for pwrStat in range(0, 20):
             vmStillOn = []
-            vmStat = getOnVms(vcsaConnect)
+            vmStat = getOnVms(vcsaConnect, vcenterUrl)
             for k in range(len(vmStat)):
                 vmStillOn.append(vmStat[k]['vm'])
             vmAllOff = all((item not in vmFilteredList for item in vmStillOn))
@@ -159,11 +159,14 @@ def vmPwrOps(op, host, user, pw, vcsa_host):
                 print("All phase 1 vm's have powered off: ", vmStillOn)
     #shutdown vm's only on specified host
     elif (op == "shutdown" and host):
+        vmObj = getOnVms(vcsaConnect, vcenterUrl)
         try:
             vmHostJson = requests.get(vmmHostApiTargert, verify=False).json()
         except:
             print("Unable to retrieve data from flask api")
+        vmNameListOnHost = []
         vmFilteredList = []
+        vmPwrOnHostListDict = []
         threads = []
         for i in range(len(vmHostJson['vmwareHosts'])):
             if (vmHostJson['vmwareHosts'][i]['Name'] == host):
@@ -176,44 +179,58 @@ def vmPwrOps(op, host, user, pw, vcsa_host):
             print(vmOnHostJson)
         except:
             print("Error getting vm's on specified host")
+        for k in range(len(vmOnHostJson['virtualMachines'])):
+            if (vmOnHostJson['virtualMachines'][k]['ObjectType'] == "virtualization.VmwareVirtualMachine" and vmOnHostJson['virtualMachines'][k]['PowerState'] == "PoweredOn"):
+                vmNameListOnHost.append(vmOnHostJson['virtualMachines'][k]['Name'])
+        print("\n\n", vmNameListOnHost)
+        #print(vmObj)
+        for j in range(len(vmNameListOnHost)):
+            for h in range(len(vmObj)):
+                if (vmNameListOnHost[j] == vmObj[h]['name']):
+                    vmFilteredList.append(vmObj[h]['vm'])
+                    vmPwrOnHostListDict.append(vmObj[h])
+        print(vmFilteredList)
+        print(vmPwrOnHostListDict)
+        with open(outFileName, 'w') as file:
+            json.dump(vmPwrOnHostListDict, file)
         # for i in range(len(vmObj)):
         #     vmFilteredList.append(vmObj[i]['vm'])
 
-        # for args in vmFilteredList:
-        #     thread = threading.Thread(target=vmPwrDown, args=(vcsaConnect,op,args,vcenterUrl,))
-        #     threads.append(thread)
-        #     thread.start()
+        for args in vmFilteredList:
+            thread = threading.Thread(target=vmPwrDown, args=(vcsaConnect,op,args,vcenterUrl,))
+            threads.append(thread)
+            thread.start()
 
-        # for thread in threads:
-        #     thread.join()
-        # for pwrStat in range(0, 20):
-        #     vmStillOn = []
-        #     vmStat = getOnVms(vcsaConnect)
-        #     for k in range(len(vmStat)):
-        #         vmStillOn.append(vmStat[k]['vm'])
-        #     vmAllOff = all((item not in vmFilteredList for item in vmStillOn))
-        #     if not vmAllOff:
-        #         print("Powering Down: ", vmStillOn)
-        #         time.sleep(30)
-        #         pwrStat += 1
-        #     elif (pwrStat >= 20):
-        #         print("Timed out waiting for vm's to power off: ", vmStillOn)
-        #         exit(1)
-        #     if vmAllOff:
-        #         print("All phase 1 vm's have powered off: ", vmStillOn)
+        for thread in threads:
+            thread.join()
+        for pwrStat in range(0, 20):
+            vmStillOn = []
+            vmStat = getOnVms(vcsaConnect, vcenterUrl)
+            for k in range(len(vmStat)):
+                vmStillOn.append(vmStat[k]['vm'])
+            vmAllOff = all((item not in vmFilteredList for item in vmStillOn))
+            if not vmAllOff:
+                print("Powering Down: ", vmFilteredList)
+                time.sleep(30)
+                pwrStat += 1
+            elif (pwrStat >= 20):
+                print("Timed out waiting for vm's to power off: ", vmStillOn)
+                exit(1)
+            if vmAllOff:
+                print(f'All vms have powered off for host: {host} ', vmFilteredList)
 
     elif (op == "start"):
         vmFilteredList = []
         threads = []
         with open(inFileName, 'r') as file:
             vmObj = json.load(file)
-        for i in range(len(vmObj)):
-            for k in range(len(filterStringList)):
-                if filterStringList[k] in vmObj[i]['name']:
-                    vmObj[i].clear()
-                    break
-        while {} in vmObj:
-            vmObj.remove({})
+        # for i in range(len(vmObj)):
+        #     for k in range(len(filterStringList)):
+        #         if filterStringList[k] in vmObj[i]['name']:
+        #             vmObj[i].clear()
+        #             break
+        # while {} in vmObj:
+        #     vmObj.remove({})
         for i in range(len(vmObj)):
             vmFilteredList.append(vmObj[i]['vm'])
 

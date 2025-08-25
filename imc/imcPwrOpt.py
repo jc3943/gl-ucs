@@ -22,7 +22,7 @@ def hostPwrOpt(oper, cimc_user, cimc_pw, cimcIp):
 
 
 @click.command()
-@click.option("--file", type=str, help='seedfile name for cimmc addrs', required=True)
+@click.option("--file", type=str, help='seedfile name for cimmc addrs', required=False)
 @click.option("--op", type=click.Choice(['On', 'GracefulShutdown', 'Off', 'PowerCycle']), help='[default: on]', show_default=True, required=True)
 @click.option("--user", type=str, help='cimc usernamne', required=False)
 @click.option("--pw", type=str, help='cimc password', required=False)
