@@ -33,7 +33,7 @@ getPhyInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
   only:
-    - master
+    - imcPwrOpt
 
 getDiskInv:
   stage: getInv
@@ -45,7 +45,7 @@ getDiskInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
   only:
-    - master
+    - imcPwrOpt
 
 getVmHostInv:
   stage: getInv
@@ -57,7 +57,7 @@ getVmHostInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
   only:
-    - master
+    - imcPwrOpt
 
 getVmInv:
   stage: getInv
@@ -69,7 +69,7 @@ getVmInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
   only:
-    - master
+    - imcPwrOpt
 
 updateSrc:
   stage: updateSrc
@@ -88,7 +88,7 @@ updateSrc:
     - git push origin $CI_COMMIT_REF_NAME -o ci.skip
   needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInv"]
   only:
-    - master
+    - imcPwrOpt
 
 # createRepos:
 #   stage: createRepos
