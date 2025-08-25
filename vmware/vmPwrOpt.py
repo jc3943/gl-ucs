@@ -19,7 +19,7 @@ outFilePath = os.environ['dataPath']
 outFileName = outFilePath + "/vmware/" + "vmPoweredOn.json"
 
 #Flask front-end for Intersight
-API_BASE_URL = "http://172.16.113.2:5002"
+API_BASE_URL = "http://172.0.1.51:5002"
 vmmHostApiEndpoint = "/intersight/vmmHosts"
 virtMachineApiEngpoint = "/intersight/virtMachines"
 vmmHostApiTargert = API_BASE_URL + vmmHostApiEndpoint
