@@ -80,6 +80,7 @@ updateSrc:
     expire_in: 1 hour
   image: jcomer3943/ubuntu:flask
   script:
+    - sleep 600
     - git config --global user.name jeff.comer
     - git config --global user.email jeff.comer@gitlab.com
     - git checkout imcPwrOpt
@@ -106,7 +107,7 @@ installOs:
   script:
     - cd bm-install/os_install
     - terraform init
-    - terraform apply --var-file=../../vars/master/terraform/os_install.tfvars -auto-approve
+    - terraform apply --var-file=../../vars/master/terraform/rhel_install.tfvars -auto-approve
     - cd ../../
   only:
     - imcPwrOpt

@@ -55,6 +55,8 @@ class getServerSummary(Resource):
                     svrPhysDict[respKey] = respItem
                 elif respKey == "DeviceMoId":
                     svrPhysDict[respKey] = respItem
+                elif respKey == "MoId":
+                    svrPhysDict[respKey] = respItem
                 elif respKey == "Firmware":
                     svrPhysDict[respKey] = respItem
                 elif respKey == "MemorySpeed":
