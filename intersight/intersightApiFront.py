@@ -33,8 +33,6 @@ AUTH = IntersightAuth(
     api_key_id=key_id
     )
 
-#intersightUrl = "https://dev-intersight.thor.iws.navy.mil"
-
 @api.route("/intersight/serverSummary")
 class getServerSummary(Resource):
     def get(self):
@@ -56,6 +54,8 @@ class getServerSummary(Resource):
                 elif respKey == "Serial":
                     svrPhysDict[respKey] = respItem
                 elif respKey == "DeviceMoId":
+                    svrPhysDict[respKey] = respItem
+                elif respKey == "MoId":
                     svrPhysDict[respKey] = respItem
                 elif respKey == "Firmware":
                     svrPhysDict[respKey] = respItem

@@ -1,11 +1,11 @@
 # Intersight Access API Key
 # Common
 org_name = "default"
-server_serial = "WZP28310Q1Q"
-os_config_file = "RHEL8ConfigFile"
+server_serial = "WMP2443017J"
+os_config_file = "ESXi6.7ConfigFile"
 
-os_repo_name = "RHEL-8.9"
-scu_repo_name = "SCU-6.3.2c"
+os_repo_name = "ESXi-6.7"
+scu_repo_name = "SCU-6.1.3c"
 
 # os_install
 # Configuration Source : Cisco
@@ -14,15 +14,15 @@ scu_repo_name = "SCU-6.3.2c"
 # Redhat: RHEL8ConfigFile, RHEL7ConfigFile
 # Ubuntu: No cisco provided config
 # Windows: Windows2019ConfigFile, Windows2016ConfigFile
-os_hostname       = "sandbox-rhel89"
+os_hostname       = "sandbox-bm-esxi.thor.iws.nayv.mil"
 os_ip_config_type = "static"
 
 ## OS IP Info
-os_ipv4_addr         = "172.16.115.11"
+os_ipv4_addr         = "172.16.115.41"
 os_ipv4_netmask      = "255.255.252.0"
 os_ipv4_gateway      = "172.16.115.254"
-os_ipv4_dns_ip       = "172.16.10.100"
-os_root_password     = "DEVP@ssw0rd"
+os_ipv4_dns_ip       = "172.0.1.10"
+os_root_password     = "somepassword"
 os_answers_nr_source = "Template" # Template for cisco provided source files
-os_answers_netDev    = "eno7"
-os_answers_vlanId    = 0
+os_answers_netDev    = "vmnic5"
+os_answers_vlanId    = 1200

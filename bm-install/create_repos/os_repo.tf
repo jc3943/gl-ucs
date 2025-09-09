@@ -4,7 +4,7 @@ locals {
     cifs = "softwarerepository.CifsServer",
     nfs = "softwarerepository.NfsServer"
   }
-  os_source_type = lookup(local.os_sources, var.object_type, "https" )
+  os_source_type = lookup(local.os_sources, var.object_type, "nfs" )
 }
 
 resource "intersight_softwarerepository_operating_system_file" "os_repo" {
@@ -33,9 +33,9 @@ resource "intersight_softwarerepository_operating_system_file" "os_repo" {
     object_type = local.os_source_type # var.repo_source_object_type
     additional_properties = jsonencode({
       # HTTPS
-      LocationLink = var.repo_source_os_iso_path
-      Username     = var.repo_source_user
-      Password     = var.repo_source_password
+      # LocationLink = var.repo_source_os_iso_path
+      # Username     = var.repo_source_user
+      # Password     = var.repo_source_password
 
       # CIFS
       # FileLocation = var.repo_source_os_iso_path
@@ -44,8 +44,8 @@ resource "intersight_softwarerepository_operating_system_file" "os_repo" {
       # Password     = var.repo_source_password
 
       # NFS
-      # FileLocation = var.repo_source_os_iso_path
-      # MountOptions = var.repo_source_nfs_mount_options
+      FileLocation = var.repo_source_os_iso_path
+      MountOptions = var.repo_source_nfs_mount_options
     })
   }
 }

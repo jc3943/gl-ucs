@@ -1,9 +1,9 @@
 stages:
-#  - claimDevices
+  - claimDevices
   - getInv
   - updateSrc
 #  - createRepos
-#  - installOs
+  - installOs
 
 
 variables:
@@ -12,16 +12,17 @@ variables:
   TF_VAR_varPath: vars/$CI_COMMIT_REF_NAME
   TF_VAR_imcSeedFile: ../../vars/$CI_COMMIT_REF_NAME/imc/hostIpAddrs.csv
 
-# claimDevices:
-#   stage: claimDevices
-#   image: jc3943/ubuntu-tfe:20220911
-#   script:
-#     - python3 imc/imcNetSet.py -u admin -p somepassword -i $varPath/imc/hostIpAddrs.csv
-#     - cd intersight/devClaims
-#     - terraform init
-#     - terraform apply -var-file=master.tfvars -auto-approve
-#     - cd ../../
-#     - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
+claimDevices:
+  stage: claimDevices
+  image: jc3943/ubuntu-tfe:20220911
+  script:
+    - python3 imc/imcNetSet.py -u admin -p DEVP@ssw0rd -i $varPath/imc/hostIpAddrs.csv
+    - cd intersight/devClaims
+    - terraform init
+    - terraform apply -var-file=master.tfvars -auto-approve
+    - cd ../../
+    - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
+    - sleep 180
 
 getPhyInv:
   stage: getInv
@@ -33,7 +34,7 @@ getPhyInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
   only:
-    - master
+    - imcPwrOpt
 
 getDiskInv:
   stage: getInv
@@ -45,7 +46,7 @@ getDiskInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
   only:
-    - master
+    - imcPwrOpt
 
 getVmHostInv:
   stage: getInv
@@ -57,7 +58,7 @@ getVmHostInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
   only:
-    - master
+    - imcPwrOpt
 
 getVmInv:
   stage: getInv
@@ -69,7 +70,7 @@ getVmInv:
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
   only:
-    - master
+    - imcPwrOpt
 
 updateSrc:
   stage: updateSrc
@@ -79,16 +80,17 @@ updateSrc:
     expire_in: 1 hour
   image: jcomer3943/ubuntu:flask
   script:
+    - sleep 600
     - git config --global user.name jeff.comer
     - git config --global user.email jeff.comer@gitlab.com
-    - git checkout -b master
+    - git checkout imcPwrOpt
     - git add data/*
     - git remote set-url --push origin http://gl-ucs-token:7ptfVzxxhDmgqns4Qv95@172.16.14.132/jeff.comer/gl-ucs.git
     - git commit -m "updating source with inventory csv data"
     - git push origin $CI_COMMIT_REF_NAME -o ci.skip
   needs: ["getPhyInv", "getDiskInv", "getVmHostInv", "getVmInv"]
   only:
-    - master
+    - imcPwrOpt
 
 # createRepos:
 #   stage: createRepos
@@ -99,11 +101,13 @@ updateSrc:
 #     - terraform apply --var-file=../../vars/master/terraform/create_repos.tfvars -auto-approve
 #     - cd ../../
 
-# installOs:
-#   stage: installOs
-#   image: jc3943/ubuntu-tfe:20220911
-#   script:
-#     - cd bm-install/os_install
-#     - terraform init
-#     - terraform apply --var-file=../../vars/master/terraform/os_install.tfvars -auto-approve
-#     - cd ../../
+installOs:
+  stage: installOs
+  image: jc3943/ubuntu-tfe:20220911
+  script:
+    - cd bm-install/os_install
+    - terraform init
+    - terraform apply --var-file=../../vars/master/terraform/rhel_install.tfvars -auto-approve
+    - cd ../../
+  only:
+    - imcPwrOpt
