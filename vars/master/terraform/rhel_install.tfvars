@@ -18,11 +18,11 @@ os_hostname       = "sandbox-rhel89"
 os_ip_config_type = "static"
 
 ## OS IP Info
-os_ipv4_addr         = "172.16.115.11"
+os_ipv4_addr         = "172.16.115.21"
 os_ipv4_netmask      = "255.255.252.0"
 os_ipv4_gateway      = "172.16.115.254"
 os_ipv4_dns_ip       = "172.16.10.100"
 os_root_password     = "DEVP@ssw0rd"
 os_answers_nr_source = "Template" # Template for cisco provided source files
-os_answers_netDev    = "eno7"
+os_answers_netDev    = "eno11"
 os_answers_vlanId    = 0
