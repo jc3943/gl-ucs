@@ -114,6 +114,46 @@ class getPhysicalDisks(Resource):
         return(responseData)
         #return(physicalDiskJson)
 
+@api.route("/intersight/gpus")
+class getServerGpu(Resource):
+    def get(self):
+        svrPhysList = []
+        svrGpuList = []
+        serverSummaryURL = "http://localhost:5002/intersight/serverSummary"
+        response = requests.get(serverSummaryURL, verify=False)
+        serverSummaryJson = response.json()
+
+        serverGpuUrl = intersightUrl + "/api/v1/graphics/Cards"
+        response = requests.get(serverGpuUrl, verify=False, auth=AUTH)
+        serverGpuJson = response.json()
+        for i in range(len(serverGpuJson["Results"])):
+            svrGpuDict = {}
+            for respKey, respItem in serverGpuJson["Results"][i].items():
+                if respKey == "CardId":
+                   svrGpuDict[respKey] = respItem
+                elif respKey == "DeviceMoId":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "FirmwareVersion":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "GpuId":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "Model":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "PartNumber":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "PciSlot":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "Pid":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "Serial":
+                    svrGpuDict[respKey] = respItem
+                elif respKey == "Vendor":
+                    svrGpuDict[respKey] = respItem
+            svrGpuList.append(svrGpuDict)
+            responseData = {'servers':serverSummaryJson["servers"], 'gpuInventory':svrGpuList}
+        return(responseData)
+        #return(physicalDiskJson)
+
 @api.route("/intersight/vmmHosts")
 class getVmmHosts(Resource):
     def get(self):
