@@ -45,6 +45,12 @@ RUN pip3 install jsonschema
 RUN pip3 install intersight_auth
 RUN pip3 install intersight
 
+RUN curl https://apt.releases.hashicorp.com/gpg | gpg --dearmor > hashicorp.gpg
+RUN install -o root -g root -m 644 hashicorp.gpg /etc/apt/trusted.gpg.d
+RUN apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com focal main"
+RUN apt update
+RUN apt install terraform
+
 
 
 
