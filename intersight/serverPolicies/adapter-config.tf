@@ -1,3 +1,5 @@
+#Authored: Jeff Comer
+
 # data "intersight_adapter_config_policy" "adapter_settings" {
 #     name = "RHEL-adapter-config-policy"
 # }
