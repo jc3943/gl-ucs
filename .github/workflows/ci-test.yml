@@ -1,0 +1,37 @@
+name: Manual Trigger Workflow
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - production
+          - qa
+          - dev
+      logLevel:
+        description: 'The log level for the deployment'
+        required: false
+        default: 'warning'
+        type: choice
+        options:
+          - information
+          - warning
+          - critical
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to specified environment
+        run: |
+          echo "Deploying to ${{ github.event.inputs.environment }} environment with log level ${{ github.event.inputs.logLevel }}"
+          # Add your deployment commands here
+
