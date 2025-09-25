@@ -1,0 +1,34 @@
+servers:
+  - os_hostname: sandbox-01
+    server_serial: WMP253400KA
+    os_ipv4_addr: 172.16.115.11
+    os_ipv4_netmask: 255.255.252.0
+    os_ipv4_gateway: 172.16.115.254
+    os_ipv4_dns_ip: 172.16.10.100
+    os_root_password: DEVP@ssw0rd
+    os_answers_netDev: eno11
+    os_answers_vlanId: 0
+    obj_type: compute.RackUnit
+    server_moid: 6789ab44617675301f4a716b
+  - os_hostname: sandbox-02
+    server_serial: WMP253400J6
+    os_ipv4_addr: 172.16.115.12
+    os_ipv4_netmask: 255.255.252.0
+    os_ipv4_gateway: 172.16.115.254
+    os_ipv4_dns_ip: 172.16.10.100
+    os_root_password: DEVP@ssw0rd
+    os_answers_netDev: eno11
+    os_answers_vlanId: 0
+    obj_type: compute.RackUnit
+    server_moid: 6789ab48617675301f4a72a9
+  - os_hostname: sandbox-03
+    server_serial: WMP253400GP
+    os_ipv4_addr: 172.16.115.13
+    os_ipv4_netmask: 255.255.252.0
+    os_ipv4_gateway: 172.16.115.254
+    os_ipv4_dns_ip: 172.16.10.100
+    os_root_password: DEVP@ssw0rd
+    os_answers_netDev: eno11
+    os_answers_vlanId: 0
+    obj_type: compute.RackUnit
+    server_moid: 6789ab82617675301f4a73ea
