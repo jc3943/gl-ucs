@@ -1,7 +1,7 @@
 #Authored: Jeff Comer
 
 locals {
- config = yamldecode(file("../../vars/master/terraform/os_install_servers.yml"))
+ config = yamldecode(file("../../vars/imcPwrOpt/terraform/os_install_servers.yml"))
  servers = local.config.servers
 }
 
