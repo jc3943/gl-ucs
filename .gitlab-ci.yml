@@ -82,11 +82,9 @@ updateSrc:
     expire_in: 1 hour
   image: jcomer3943/ubuntu:flask
   script:
-    - sleep 600
     - git config --global user.name jeff.comer
     - git config --global user.email jeff.comer@gitlab.com
-    - git checkout imcPwrOpt
-    - git pull origin imcPwrOpt
+    - git checkout -b imcPwrOpt
     - git add data/*
     - git remote set-url --push origin http://gl-ucs-token:7ptfVzxxhDmgqns4Qv95@172.16.14.132/jeff.comer/gl-ucs.git
     - git commit -m "updating source with inventory csv data"
