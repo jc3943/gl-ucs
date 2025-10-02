@@ -15,7 +15,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 #export VAULT_TOKEN='vault access token'
 
 # get credentials from vault for Intersight API access
-client = hvac.Client(verify=False)
+client = hvac.Client(verify=False, raise_on_deleted_version=True)
 key_id = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("api_key_id")
 key_string = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("secret_key_string")
 intersightUrl = client.secrets.kv.v2.read_secret_version(mount_point='intersight', path="intersight_api").get("data").get("data").get("target-url")
