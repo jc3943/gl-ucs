@@ -1,7 +1,7 @@
 #Authored: Jeff Comer
 
 locals {
- config = yamldecode(file("../../vars/imcPwrOpt/terraform/os_install_servers.yml"))
+ config = yamldecode(file("../../data/ucs/os_install_servers.yml"))
  servers = local.config.servers
 }
 
@@ -95,10 +95,10 @@ resource "intersight_os_install" "os_install" {
     additional_properties = jsonencode({
       ObjectType              = "os.VirtualDrive"
       Id                      = "0"
-      Name                    = "RAID0_1"
-      StorageControllerSlotId = "MRAID"
-      # Name                    = "NTNXOSBoot"
-      # StorageControllerSlotId = "MSTOR-RAID"
+      # Name                    = "RAID0_1"
+      # StorageControllerSlotId = "MRAID"
+      Name                    = "RAID1_253254"
+      StorageControllerSlotId = "MSTOR-RAID"
     })
   }
 }

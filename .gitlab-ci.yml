@@ -1,6 +1,7 @@
 stages:
   - claimDevices
   - getInv
+  - getSvrMoids
   - updateSrc
 #  - createRepos
   - installOs
@@ -22,7 +23,7 @@ claimDevices:
     - terraform apply -var-file=master.tfvars -auto-approve
     - cd ../../
     - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
-    - sleep 180
+    - sleep 500
   only:
     - imcPwrOpt
 
@@ -71,6 +72,18 @@ getVmInv:
   image: jcomer3943/ubuntu:flask
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
+  only:
+    - imcPwrOpt
+
+getSvrMoids:
+  stage: getSvrMoids
+  artifacts:
+    paths:
+      - data/ucs
+    expire_in: 1 hour
+  image: jcomer3943/ubuntu:flask
+  script:
+    - python3 intersight/intersightBuildBmYaml.py --infile $varPath/imc/bmHostAddrs.csv --pw DEVP@ssw0rd
   only:
     - imcPwrOpt
 
