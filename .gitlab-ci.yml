@@ -33,7 +33,7 @@ getPhyInv:
     paths:
       - data/ucs
     expire_in: 1 hour
-  image: jcomer3943/ubuntu:flask
+  image: jcomer3943/ubuntu:2025-10-02
   script:
     - sleep 300
     - python3 intersight/ucsInventory-v2.py --type svrSummary
@@ -46,7 +46,7 @@ getDiskInv:
     paths:
       - data/ucs
     expire_in: 1 hour
-  image: jcomer3943/ubuntu:flask
+  image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
   only:
@@ -58,7 +58,7 @@ getVmHostInv:
     paths:
       - data/ucs
     expire_in: 1 hour
-  image: jcomer3943/ubuntu:flask
+  image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
   only:
@@ -70,7 +70,7 @@ getVmInv:
     paths:
       - data/ucs
     expire_in: 1 hour
-  image: jcomer3943/ubuntu:flask
+  image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
   only:
@@ -82,7 +82,7 @@ getSvrMoids:
     paths:
       - data/ucs
     expire_in: 1 hour
-  image: jcomer3943/ubuntu:flask
+  image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/intersightBuildBmYaml.py --infile $varPath/imc/bmHostAddrs.csv --pw DEVP@ssw0rd
   only:
@@ -94,7 +94,7 @@ updateSrc:
     paths:
       - data/ucs
     expire_in: 1 hour
-  image: jcomer3943/ubuntu:flask
+  image: jcomer3943/ubuntu:2025-10-02
   script:
     - git config --global user.name jeff.comer
     - git config --global user.email jeff.comer@gitlab.com
