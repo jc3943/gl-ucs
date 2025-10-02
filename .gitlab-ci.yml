@@ -13,19 +13,19 @@ variables:
   TF_VAR_varPath: vars/$CI_COMMIT_REF_NAME
   TF_VAR_imcSeedFile: ../../vars/$CI_COMMIT_REF_NAME/imc/hostIpAddrs.csv
 
-# claimDevices:
-#   stage: claimDevices
-#   image: jc3943/ubuntu-tfe:20220911
-#   script:
-#     - python3 imc/imcNetSet.py -u admin -p DEVP@ssw0rd -i $varPath/imc/hostIpAddrs.csv
-#     - cd intersight/devClaims
-#     - terraform init
-#     - terraform apply -var-file=master.tfvars -auto-approve
-#     - cd ../../
-#     - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
-#     - sleep 500
-#   only:
-#     - imcPwrOpt
+claimDevices:
+  stage: claimDevices
+  image: jc3943/ubuntu-tfe:20220911
+  script:
+    - python3 imc/imcNetSet.py -u admin -p DEVP@ssw0rd -i $varPath/imc/hostIpAddrs.csv
+    - cd intersight/devClaims
+    - terraform init
+    - terraform apply -var-file=master.tfvars -auto-approve
+    - cd ../../
+    - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
+    - sleep 500
+  only:
+    - imcPwrOpt
 
 getPhyInv:
   stage: getInv
