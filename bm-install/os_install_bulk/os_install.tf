@@ -95,10 +95,10 @@ resource "intersight_os_install" "os_install" {
     additional_properties = jsonencode({
       ObjectType              = "os.VirtualDrive"
       Id                      = "0"
-      # Name                    = "RAID0_1"
-      # StorageControllerSlotId = "MRAID"
-      Name                    = "RAID1_253254"
-      StorageControllerSlotId = "MSTOR-RAID"
+      Name                    = "RAID0_1"
+      StorageControllerSlotId = "MRAID"
+      # Name                    = "RAID1_253254"
+      # StorageControllerSlotId = "MSTOR-RAID"
     })
   }
 }

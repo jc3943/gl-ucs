@@ -83,7 +83,6 @@ getSvrMoids:
     expire_in: 1 hour
   image: jcomer3943/ubuntu:2025-10-02
   script:
-    - sleep 300
     - python3 intersight/intersightBuildBmYaml.py --infile $varPath/imc/bmHostAddrs.csv --pw DEVP@ssw0rd
   only:
     - imcPwrOpt
