@@ -1,0 +1,12 @@
+servers:
+  - obj_type: compute.RackUnit
+    os_ipv4_addr: 172.16.115.41
+    os_ipv4_netmask: 255.255.252.0
+    os_ipv4_gateway: 172.16.115.254
+    os_ipv4_dns_ip: 172.16.10.100
+    os_root_password: DEVP@ssw0rd
+    os_answers_netDev: eno7
+    os_answers_vlanId: '0'
+    server_moid: 68df1ecb617675301f10fd52
+    os_hostname: sandbox-bm-esxi
+    server_serial: WMP2443017J
