@@ -23,7 +23,7 @@ claimDevices:
     - terraform apply -var-file=master.tfvars -auto-approve
     - cd ../../
     - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
-    - sleep 300
+    - sleep 500
   only:
     - imcPwrOpt
 
