@@ -97,7 +97,7 @@ updateSrc:
   script:
     - git config --global user.name jeff.comer
     - git config --global user.email jeff.comer@gitlab.com
-    #- sleep 300
+    - sleep 300
     - git checkout imcPwrOpt
     - git add data/*
     - git remote set-url --push origin http://gl-ucs-token:df7Ttj4FJbGRk1ee-yLp@172.16.14.132/jeff.comer/gl-ucs.git
