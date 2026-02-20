@@ -56,16 +56,35 @@ def getDevTargetStatus(specDict):
 
     for statusCheck in range(0, 900):
         statusList = []
+        targetClaimStatus = requests.get(targetURL, verify=False, auth=AUTH)
         for i in range(len(targetClaimStatusJson["Results"])):
             if ("IMC" in targetClaimStatusJson["Results"][i]["TargetType"]):
                 statusList.append(targetClaimStatusJson["Results"][i]["Status"])
-        #print(statusList)
+        print(statusList)
         if "NotConnected" in statusList:
             statusCheck += 1
             time.sleep(60)
         else:
             print("Targets from terraform device claims are conected in Intersight")
             break
+
+def getOsInstallStatus(specDict):
+    targetURL = specDict['url'] + "/api/v1/workflow/WorkflowInfos?$select=Name,%20Status,%20StartTime,%20WorkflowType&$filter=Status%20eq%20%27RUNNING%27%20and%20Name%20eq%20%27Operating%20System%20Install%27"
+    try:
+        for installCheck in range(0, 900):
+            osInstallStatus = requests.get(targetURL, verify=False, auth=AUTH).json()
+            if osInstallStatus["Results"][0]["Status"] == "RUNNING":
+                installCheck += 1
+                time.sleep(60)
+            elif osInstallStatus["Results"][0]["Status"] == "FAILED":
+                print(osInstallStatus["Results"][0]["Name"], osInstallStatus["Results"][0]["Moid"], osInstallStatus["Results"][0]["Status"] == "RUNNING")
+                exit(1)
+            else:
+                print("OS Install Jobs Are Completed")
+                exit(0)
+    except:
+        print("Failed to get workflow data")
+
 
 def getServerSummaries(specDict):
     serverSummaryURL = specDict['url'] + "/api/v1/compute/PhysicalSummaries?$inlinecount=allpages"

@@ -127,5 +127,7 @@ installOs:
     - terraform init
     - terraform apply --var-file=../../vars/master/terraform/rhel_install.tfvars -auto-approve
     - cd ../../
+    - sleep 120
+    - python3 intersight/osInstallStatus.py -u https://dev-intersight.thor.iws.navy.mil
   only:
     - imcPwrOpt
