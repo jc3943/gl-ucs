@@ -1,0 +1,178 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: intersight-mcp-template
+  annotations:
+    description: "Intersight MCP Server Deployment Template"
+    tags: "intersight,mcp,ai"
+    iconClass: "icon-nodejs"
+objects:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: ${APPLICATION_NAME}-credentials
+    labels:
+      app: ${APPLICATION_NAME}
+  stringData:
+    INTERSIGHT_API_KEY_ID: "${INTERSIGHT_API_KEY_ID}"
+    INTERSIGHT_API_SECRET_KEY: "${INTERSIGHT_API_SECRET_KEY}"
+    INTERSIGHT_MCP_API_KEY: "${INTERSIGHT_MCP_API_KEY}"
+
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    lookupPolicy:
+      local: true
+
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}:latest
+    source:
+      type: Git
+      git:
+        uri: ${GIT_URI}
+        ref: ${GIT_REF}
+      contextDir: ${CONTEXT_DIR}
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: Dockerfile
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: ${APPLICATION_NAME}
+    template:
+      metadata:
+        labels:
+          app: ${APPLICATION_NAME}
+      spec:
+        containers:
+        - name: intersight-mcp
+          image: ${APPLICATION_NAME}:latest
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+          env:
+          - name: PORT
+            value: "3000"
+          - name: INTERSIGHT_TOOL_MODE
+            value: "${INTERSIGHT_TOOL_MODE}"
+          - name: INTERSIGHT_BASE_URL
+            value: "${INTERSIGHT_BASE_URL}"
+          envFrom:
+          - secretRef:
+              name: ${APPLICATION_NAME}-credentials
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    selector:
+      app: ${APPLICATION_NAME}
+    ports:
+    - port: 8080
+      targetPort: 3000
+      protocol: TCP
+
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      app: ${APPLICATION_NAME}
+  spec:
+    to:
+      kind: Service
+      name: ${APPLICATION_NAME}
+    port:
+      targetPort: 3000
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+
+parameters:
+- name: APPLICATION_NAME
+  displayName: Application Name
+  description: The name of the application resources.
+  value: intersight-mcp
+  required: true
+
+- name: GIT_URI
+  displayName: Git Repository URL
+  description: The URL of the Git repository containing the source code.
+  required: true
+
+- name: GIT_REF
+  displayName: Git Reference
+  description: The Git branch, tag, or commit to build.
+  value: main
+
+- name: CONTEXT_DIR
+  displayName: Context Directory
+  description: The directory in the repository containing the Dockerfile.
+  value: "."
+
+- name: INTERSIGHT_API_KEY_ID
+  displayName: Intersight API Key ID
+  description: The API Key ID for Cisco Intersight.
+  required: true
+
+- name: INTERSIGHT_API_SECRET_KEY
+  displayName: Intersight API Secret Key
+  description: The API Secret Key for Cisco Intersight (PEM format).
+  required: true
+
+- name: INTERSIGHT_MCP_API_KEY
+  displayName: MCP API Key
+  description: Optional API Key for securing the MCP server endpoints.
+  generate: expression
+  from: "[a-zA-Z0-9]{32}"
+
+- name: INTERSIGHT_TOOL_MODE
+  displayName: Tool Mode
+  description: "Tool selection mode: 'core' (safe tools) or 'all' (full CRUD)."
+  value: "all"
+
+- name: INTERSIGHT_BASE_URL
+  displayName: Intersight Base URL
+  description: The base URL for the Intersight API.
+  value: "https://dev-intersight.thor.iws.navy.mil/api/v1"

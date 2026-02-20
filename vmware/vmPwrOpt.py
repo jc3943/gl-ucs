@@ -25,7 +25,7 @@ virtMachineApiEngpoint = "/intersight/virtMachines"
 vmmHostApiTargert = API_BASE_URL + vmmHostApiEndpoint
 virtMachinesApiTarget = API_BASE_URL + virtMachineApiEngpoint
 
-filterStringList = ["vcsa", "vapic", "stCtlVM", "vCLS", "git", "Git", "GIT", "intersight"]
+filterStringList = ["vcsa", "vapic", "stCtlVM", "vCLS", "git", "Git", "GIT", "intersight", "NTNX"]
 
 def vcenterConnect(vcenterUrl, vcsa_user, vcsa_pw):
     endPointUrl = f"{vcenterUrl}/rest/com/vmware/cis/session"
@@ -117,8 +117,8 @@ def vmPwrOps(op, host, user, pw, vcsa_host):
         except:
             print("Unable to retrieve vault credentials")
             exit(1)
-        vcenterUrl = f"https://{vcsa_ip}"
-        vcsaConnect = vcenterConnect(vcenterUrl, vcsa_user, vcsa_pw)
+    vcenterUrl = f"https://{vcsa_ip}"
+    vcsaConnect = vcenterConnect(vcenterUrl, vcsa_user, vcsa_pw)
     if (op == "shutdown" and not host):
         vmObj = getOnVms(vcsaConnect, vcenterUrl)
         with open(outFileName, 'w') as file:
