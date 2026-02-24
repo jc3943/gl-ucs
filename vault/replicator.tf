@@ -35,3 +35,16 @@ resource "vault_generic_secret" "sync_to_secondary2" {
   path     = "cimc/cimc-admin"
   data_json = data.vault_generic_secret.my_secret.data_json
 }
+
+# Read from Primary
+data "vault_generic_secret" "my_secret3" {
+  provider = vault.primary
+  path     = "cml/cml-admin"
+}
+
+# Write to Secondary
+resource "vault_generic_secret" "sync_to_secondary3" {
+  provider = vault.secondary
+  path     = "cml/cml-admin"
+  data_json = data.vault_generic_secret.my_secret.data_json
+}
