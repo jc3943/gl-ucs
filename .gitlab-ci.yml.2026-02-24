@@ -5,7 +5,6 @@ stages:
 #  - updateSrc
 #  - createRepos
   - installOs
-  - installRke
 
 
 variables:
@@ -130,16 +129,5 @@ installOs:
     - cd ../../
     - sleep 120
     - python3 intersight/osInstallStatus.py -u https://dev-intersight.thor.iws.navy.mil
-  only:
-    - imcPwrOpt
-
-installRke:
-  stage: installRke
-  image: jc3943/ubuntu-tfe:20220911
-  script:
-    - cd rke
-    - terraform init
-    - terraform apply -auto-approve
-    - cd ../../
   only:
     - imcPwrOpt
