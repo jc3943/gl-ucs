@@ -33,7 +33,7 @@ getPhyInv:
   artifacts:
     paths:
       - data/ucs
-    expire_in: 1 hour
+    expire_in: 2 hour
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
@@ -45,7 +45,7 @@ getDiskInv:
   artifacts:
     paths:
       - data/ucs
-    expire_in: 1 hour
+    expire_in: 2 hour
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
@@ -57,7 +57,7 @@ getVmHostInv:
   artifacts:
     paths:
       - data/ucs
-    expire_in: 1 hour
+    expire_in: 2 hour
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
@@ -69,7 +69,7 @@ getVmInv:
   artifacts:
     paths:
       - data/ucs
-    expire_in: 1 hour
+    expire_in: 2 hour
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
@@ -81,7 +81,7 @@ getSvrMoids:
   artifacts:
     paths:
       - data/ucs
-    expire_in: 1 hour
+    expire_in: 2 hour
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/intersightBuildBmYaml.py --infile $varPath/imc/bmHostAddrs.csv --pw DEVP@ssw0rd
