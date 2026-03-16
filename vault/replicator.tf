@@ -1,50 +1,65 @@
-# Primary Vault Provider
+terraform {
+  required_providers {
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 4.0"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.0"
+    }
+  }
+}
+
 provider "vault" {
   alias   = "primary"
   address = "http://172.16.112.6:8200"
 }
 
-# Secondary Vault Provider
 provider "vault" {
   alias   = "secondary"
   address = "http://172.0.1.50:8200"
 }
 
-# Read from Primary
-data "vault_generic_secret" "my_secret" {
-  provider = vault.primary
-  path     = "intersight/intersight_api"
+# Dynamically list all secrets from the primary Vault
+data "external" "vault_secrets" {
+  program = ["python3", "/workspaces/gl-ucs/vault/list_vault_secrets.py"]
+
+  query = {
+    vault_addr  = "http://172.16.112.6:8200"
+  }
 }
 
-# Write to Secondary
-resource "vault_generic_secret" "sync_to_secondary" {
+locals {
+  secret_paths = toset(jsondecode(data.external.vault_secrets.result.paths))
+  # Derive unique mount names from the discovered secret paths
+  mount_names  = toset([for path in local.secret_paths : split("/", path)[0]])
+}
+
+# Create KV v2 secret engines on Secondary
+resource "vault_mount" "kv_mounts" {
+  for_each = local.mount_names
   provider = vault.secondary
-  path     = "intersight/intersight_api"
-  data_json = data.vault_generic_secret.my_secret.data_json
+  path     = each.value
+  type     = "kv"
+  options  = { version = "2" }
 }
 
-# Read from Primary
-data "vault_generic_secret" "my_secret2" {
+# Read all discovered secrets from Primary
+data "vault_kv_secret_v2" "secrets" {
+  for_each = local.secret_paths
   provider = vault.primary
-  path     = "cimc/cimc-admin"
+  mount    = split("/", each.value)[0]
+  name     = join("/", slice(split("/", each.value), 1, length(split("/", each.value))))
 }
 
-# Write to Secondary
-resource "vault_generic_secret" "sync_to_secondary2" {
-  provider = vault.secondary
-  path     = "cimc/cimc-admin"
-  data_json = data.vault_generic_secret.my_secret.data_json
-}
+# Write all secrets to Secondary — depends_on ensures mounts exist first
+resource "vault_kv_secret_v2" "sync_to_secondary" {
+  for_each  = local.secret_paths
+  provider  = vault.secondary
+  mount     = split("/", each.value)[0]
+  name      = join("/", slice(split("/", each.value), 1, length(split("/", each.value))))
+  data_json = data.vault_kv_secret_v2.secrets[each.value].data_json
 
-# Read from Primary
-data "vault_generic_secret" "my_secret3" {
-  provider = vault.primary
-  path     = "cml/cml-admin"
-}
-
-# Write to Secondary
-resource "vault_generic_secret" "sync_to_secondary3" {
-  provider = vault.secondary
-  path     = "cml/cml-admin"
-  data_json = data.vault_generic_secret.my_secret.data_json
+  depends_on = [vault_mount.kv_mounts]
 }
