@@ -25,6 +25,8 @@ claimDevices:
     - cd ../../
     - python3 intersight/intersightDevClaimStatus.py -u https://dev-intersight.thor.iws.navy.mil -i $varPath/imc/hostIpAddrs.csv
     - sleep 600
+  tags:
+    - ocp
   only:
     - imcPwrOpt
 
@@ -37,6 +39,8 @@ getPhyInv:
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type svrSummary
+  tags:
+    - ocp
   only:
     - imcPwrOpt
 
@@ -49,6 +53,8 @@ getDiskInv:
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type diskInventory
+  tags:
+    - ocp
   only:
     - imcPwrOpt
 
@@ -61,6 +67,8 @@ getVmHostInv:
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmHost
+  tags:
+    - ocp
   only:
     - imcPwrOpt
 
@@ -73,6 +81,8 @@ getVmInv:
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/ucsInventory-v2.py --type vmmInventory
+  tags:
+    - ocp
   only:
     - imcPwrOpt
 
@@ -85,6 +95,8 @@ getSvrMoids:
   image: jcomer3943/ubuntu:2025-10-02
   script:
     - python3 intersight/intersightBuildBmYaml.py --infile $varPath/imc/bmHostAddrs.csv --pw DEVP@ssw0rd
+  tags:
+    - ocp
   only:
     - imcPwrOpt
 
@@ -130,6 +142,8 @@ installOs:
     - cd ../../
     - sleep 120
     - python3 intersight/osInstallStatus.py -u https://dev-intersight.thor.iws.navy.mil
+  tags:
+    - ocp
   only:
     - imcPwrOpt
 
@@ -141,5 +155,7 @@ installRke:
     - terraform init
     - terraform apply -auto-approve
     - cd ../../
+  tags:
+    - ocp
   only:
     - imcPwrOpt
