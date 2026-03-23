@@ -13,12 +13,12 @@ terraform {
 
 provider "vault" {
   alias   = "primary"
-  address = "http://172.16.112.6:8200"
+  address = "http://172.0.1.10:8200"
 }
 
 provider "vault" {
   alias   = "secondary"
-  address = "http://172.0.1.50:8200"
+  address = "http://172.16.112.6:8200"
 }
 
 # Dynamically list all secrets from the primary Vault
@@ -26,7 +26,7 @@ data "external" "vault_secrets" {
   program = ["python3", "/workspaces/gl-ucs/vault/list_vault_secrets.py"]
 
   query = {
-    vault_addr  = "http://172.16.112.6:8200"
+    vault_addr  = "http://172.0.1.10:8200"
   }
 }
 
