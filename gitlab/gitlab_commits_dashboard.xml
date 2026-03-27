@@ -1,0 +1,349 @@
+<dashboard version="1.1" theme="dark">
+  <label>GitLab Commits</label>
+  <description>Commits per project and user ingested from GitLab via HEC</description>
+
+  <!-- ============================================================
+       GLOBAL FILTERS (time picker + dropdowns)
+  ============================================================ -->
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time_tok" searchWhenChanged="true">
+      <label>Time Range</label>
+      <default>
+        <earliest>-30d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+
+    <input type="dropdown" token="project_tok" searchWhenChanged="true">
+      <label>Project</label>
+      <default>*</default>
+      <choice value="*">All Projects</choice>
+      <search>
+        <query>
+          index=* sourcetype=gitlab_commit
+          | dedup project_name
+          | table project_name
+          | sort project_name
+        </query>
+        <earliest>$time_tok.earliest$</earliest>
+        <latest>$time_tok.latest$</latest>
+      </search>
+      <fieldForLabel>project_name</fieldForLabel>
+      <fieldForValue>project_name</fieldForValue>
+    </input>
+
+    <input type="dropdown" token="author_tok" searchWhenChanged="true">
+      <label>Author</label>
+      <default>*</default>
+      <choice value="*">All Authors</choice>
+      <search>
+        <query>
+          index=* sourcetype=gitlab_commit project_name=$project_tok$
+          | dedup author_name
+          | table author_name
+          | sort author_name
+        </query>
+        <earliest>$time_tok.earliest$</earliest>
+        <latest>$time_tok.latest$</latest>
+      </search>
+      <fieldForLabel>author_name</fieldForLabel>
+      <fieldForValue>author_name</fieldForValue>
+    </input>
+  </fieldset>
+
+  <!-- ============================================================
+       ROW 1 — KPI single-value tiles
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Total Commits</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | stats count as total_commits
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x53A051","0x53A051"]</option>
+      </single>
+    </panel>
+
+    <panel>
+      <title>Active Projects</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | dc project_name as active_projects
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+      </single>
+    </panel>
+
+    <panel>
+      <title>Active Contributors</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | dc author_email as contributors
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+      </single>
+    </panel>
+
+    <panel>
+      <title>Avg Commits / Day</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | timechart span=1d count as daily_commits
+            | stats avg(daily_commits) as avg_per_day
+            | eval avg_per_day = round(avg_per_day,1)
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+      </single>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 2 — Commits over time (area) + Top projects (bar)
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Commits Over Time</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | timechart span=1d count as commits
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.axisTitleX.text">Date</option>
+        <option name="charting.axisTitleY.text">Commits</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.chart.fillOpacity">30</option>
+      </chart>
+    </panel>
+
+    <panel>
+      <title>Top 10 Projects by Commits</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | stats count as commits by project_name
+            | sort -commits
+            | head 10
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleX.text">Commits</option>
+        <option name="charting.axisTitleY.text">Project</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 3 — Top users (bar) + Commits per project per user (heatmap table)
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Top 15 Contributors by Commits</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | stats count as commits by author_name
+            | sort -commits
+            | head 15
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleX.text">Commits</option>
+        <option name="charting.axisTitleY.text">Author</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+
+    <panel>
+      <title>Commits by Day of Week</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | eval day_of_week = strftime(_time, "%A")
+            | eval dow_num = case(
+                day_of_week="Sunday",    1,
+                day_of_week="Monday",    2,
+                day_of_week="Tuesday",   3,
+                day_of_week="Wednesday", 4,
+                day_of_week="Thursday",  5,
+                day_of_week="Friday",    6,
+                day_of_week="Saturday",  7)
+            | stats count as commits by dow_num day_of_week
+            | sort dow_num
+            | table day_of_week commits
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisTitleX.text">Day</option>
+        <option name="charting.axisTitleY.text">Commits</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 4 — Commits per project per user (core table)
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Commits per Project per User</title>
+      <table>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | stats count as commits by project_name author_name author_email
+            | sort -commits
+            | rename project_name as "Project"
+                     author_name  as "Author"
+                     author_email as "Email"
+                     commits      as "Commits"
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">heatmap</option>
+        <format type="color" field="Commits">
+          <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"/>
+          <scale type="minMidMax"/>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 5 — Timechart by project (stacked) + by author (stacked)
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Commits Over Time by Project (Top 8)</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | timechart span=1d count by project_name limit=8 useother=false
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+
+    <panel>
+      <title>Commits Over Time by Author (Top 8)</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | timechart span=1d count by author_name limit=8 useother=false
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 6 — Recent commits raw log
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Recent Commits</title>
+      <table>
+        <search>
+          <query>
+            index=* sourcetype=gitlab_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+            | sort -_time
+            | head 50
+            | eval committed_date = strftime(_time, "%Y-%m-%d %H:%M:%S")
+            | table committed_date project_name author_name author_email short_id title web_url
+            | rename committed_date as "Date"
+                     project_name   as "Project"
+                     author_name    as "Author"
+                     author_email   as "Email"
+                     short_id       as "Commit"
+                     title          as "Message"
+                     web_url        as "URL"
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="count">25</option>
+        <drilldown>
+          <link target="_blank">$row.URL$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+
+</dashboard>

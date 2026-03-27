@@ -8,8 +8,8 @@
 #     value = data.intersight_adapter_config_policy.adapter_settings
 # }
 
-resource "intersight_adapter_config_policy" "fec_cl74" {
-  name = "Adapter_FEC_CL74"
+resource "intersight_adapter_config_policy" "this" {
+  name = "${var.policy_prefix}-adapter-mlom-cl74"
   organization {
     object_type = "organization.Organization"
     moid = data.intersight_organization_organization.default.results[0].moid
@@ -60,7 +60,7 @@ resource "intersight_adapter_config_policy" "fec_cl74" {
             {
               "additional_properties" = ""
               "class_id" = "adapter.FcSettings"
-              "fip_enabled" = true
+              "fip_enabled" = false
               "object_type" = "adapter.FcSettings"
             },
         ]

@@ -1,0 +1,489 @@
+<dashboard version="1.1" theme="dark">
+  <label>VCS Commits — GitLab &amp; GitHub</label>
+  <description>Unified commit activity from GitLab (self-hosted) and GitHub across all projects and users</description>
+
+  <!-- ============================================================
+       GLOBAL FILTERS
+  ============================================================ -->
+  <fieldset submitButton="false" autoRun="true">
+
+    <input type="time" token="time_tok" searchWhenChanged="true">
+      <label>Time Range</label>
+      <default>
+        <earliest>-30d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+
+    <input type="dropdown" token="platform_tok" searchWhenChanged="true">
+      <label>Platform</label>
+      <default>*</default>
+      <choice value="*">All Platforms</choice>
+      <choice value="gitlab">GitLab</choice>
+      <choice value="github">GitHub</choice>
+    </input>
+
+    <input type="dropdown" token="project_tok" searchWhenChanged="true">
+      <label>Project</label>
+      <default>*</default>
+      <choice value="*">All Projects</choice>
+      <search>
+        <query>
+          index=* sourcetype=vcs_commit source_platform=$platform_tok$
+          | dedup project_name | sort project_name | table project_name
+        </query>
+        <earliest>$time_tok.earliest$</earliest>
+        <latest>$time_tok.latest$</latest>
+      </search>
+      <fieldForLabel>project_name</fieldForLabel>
+      <fieldForValue>project_name</fieldForValue>
+    </input>
+
+    <input type="dropdown" token="author_tok" searchWhenChanged="true">
+      <label>Author</label>
+      <default>*</default>
+      <choice value="*">All Authors</choice>
+      <search>
+        <query>
+          index=* sourcetype=vcs_commit
+            source_platform=$platform_tok$
+            project_name=$project_tok$
+          | dedup author_name | sort author_name | table author_name
+        </query>
+        <earliest>$time_tok.earliest$</earliest>
+        <latest>$time_tok.latest$</latest>
+      </search>
+      <fieldForLabel>author_name</fieldForLabel>
+      <fieldForValue>author_name</fieldForValue>
+    </input>
+
+    <input type="dropdown" token="namespace_tok" searchWhenChanged="true">
+      <label>Namespace / Org</label>
+      <default>*</default>
+      <choice value="*">All</choice>
+      <search>
+        <query>
+          index=* sourcetype=vcs_commit source_platform=$platform_tok$
+          | dedup project_namespace | sort project_namespace | table project_namespace
+        </query>
+        <earliest>$time_tok.earliest$</earliest>
+        <latest>$time_tok.latest$</latest>
+      </search>
+      <fieldForLabel>project_namespace</fieldForLabel>
+      <fieldForValue>project_namespace</fieldForValue>
+    </input>
+
+  </fieldset>
+
+  <!-- ============================================================
+       ROW 1 — KPI tiles
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Total Commits</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x53A051","0x53A051"]</option>
+      </single>
+    </panel>
+
+    <panel>
+      <title>Active Projects</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | dc project_name
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+      </single>
+    </panel>
+
+    <panel>
+      <title>Unique Contributors</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | dc author_email
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+      </single>
+    </panel>
+
+    <panel>
+      <title>GitLab Commits</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit source_platform=gitlab
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="underLabel">GitLab</option>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0xE24329","0xE24329"]</option>
+      </single>
+    </panel>
+
+    <panel>
+      <title>GitHub Commits</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit source_platform=github
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="underLabel">GitHub</option>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x6E40C9","0x6E40C9"]</option>
+      </single>
+    </panel>
+
+    <panel>
+      <title>Avg Commits / Day</title>
+      <single>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | timechart span=1d count
+            | stats avg(count) as avg
+            | eval avg=round(avg,1)
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+      </single>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 2 — Commits over time split by platform
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Commits Over Time by Platform</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | timechart span=1d count by source_platform
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.axisTitleX.text">Date</option>
+        <option name="charting.axisTitleY.text">Commits</option>
+        <option name="charting.legend.placement">top</option>
+        <option name="charting.seriesColors">["0xE24329","0x6E40C9"]</option>
+      </chart>
+    </panel>
+
+    <panel>
+      <title>Platform Share</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count by source_platform
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.seriesColors">["0xE24329","0x6E40C9"]</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 3 — Top projects + Top contributors
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Top 10 Projects by Commits</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count as commits by project_name source_platform
+            | sort -commits
+            | head 10
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.axisTitleX.text">Commits</option>
+        <option name="charting.axisTitleY.text">Project</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.seriesColors">["0xE24329","0x6E40C9"]</option>
+      </chart>
+    </panel>
+
+    <panel>
+      <title>Top 15 Contributors by Commits</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count as commits by author_name source_platform
+            | sort -commits
+            | head 15
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.axisTitleX.text">Commits</option>
+        <option name="charting.axisTitleY.text">Author</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.seriesColors">["0xE24329","0x6E40C9"]</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 4 — Commits per project per user (CORE TABLE)
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Commits per Project per User</title>
+      <table>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count as commits by source_platform project_namespace project_name author_name author_email
+            | sort -commits
+            | rename source_platform   as "Platform"
+                     project_namespace as "Namespace"
+                     project_name      as "Project"
+                     author_name       as "Author"
+                     author_email      as "Email"
+                     commits           as "Commits"
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">25</option>
+        <option name="dataOverlayMode">heatmap</option>
+        <format type="color" field="Commits">
+          <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"/>
+          <scale type="minMidMax"/>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 5 — Commits over time by project + by author
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Commits Over Time — Top 8 Projects</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | timechart span=1d count by project_name limit=8 useother=false
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+
+    <panel>
+      <title>Commits Over Time — Top 8 Authors</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | timechart span=1d count by author_name limit=8 useother=false
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 6 — Commit cadence + namespace breakdown
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Commits by Day of Week</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | eval dow_num = strftime(_time, "%w")
+            | eval day_of_week = case(
+                dow_num="0","Sunday",  dow_num="1","Monday",
+                dow_num="2","Tuesday", dow_num="3","Wednesday",
+                dow_num="4","Thursday",dow_num="5","Friday",
+                dow_num="6","Saturday")
+            | stats count as commits by dow_num day_of_week
+            | sort dow_num
+            | table day_of_week commits
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisTitleX.text">Day</option>
+        <option name="charting.axisTitleY.text">Commits</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+
+    <panel>
+      <title>Commits by Namespace / Org</title>
+      <chart>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | stats count as commits by project_namespace source_platform
+            | sort -commits
+            | head 15
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.axisTitleX.text">Commits</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.seriesColors">["0xE24329","0x6E40C9"]</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ============================================================
+       ROW 7 — Recent commits raw log (drillable to source)
+  ============================================================ -->
+  <row>
+    <panel>
+      <title>Recent Commits (click URL to open in source system)</title>
+      <table>
+        <search>
+          <query>
+            index=* sourcetype=vcs_commit
+              source_platform=$platform_tok$
+              project_name=$project_tok$
+              author_name=$author_tok$
+              project_namespace=$namespace_tok$
+            | sort -_time
+            | head 50
+            | eval committed_date=strftime(_time,"%Y-%m-%d %H:%M:%S")
+            | table committed_date source_platform project_name author_name author_email short_id title web_url
+            | rename committed_date  as "Date"
+                     source_platform as "Platform"
+                     project_name    as "Project"
+                     author_name     as "Author"
+                     author_email    as "Email"
+                     short_id        as "SHA"
+                     title           as "Message"
+                     web_url         as "URL"
+          </query>
+          <earliest>$time_tok.earliest$</earliest>
+          <latest>$time_tok.latest$</latest>
+        </search>
+        <option name="drilldown">cell</option>
+        <option name="count">25</option>
+        <drilldown>
+          <link target="_blank">$row.URL$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+
+</dashboard>

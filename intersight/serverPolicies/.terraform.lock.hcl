@@ -5,6 +5,7 @@ provider "registry.terraform.io/ciscodevnet/intersight" {
   version = "1.0.69"
   hashes = [
     "h1:8uQ71cFtk4tZ3q7OOjSk6wghCqfZYDOeh2kG/kubQMk=",
+    "h1:mpkPvRG7g6xcTA/WfBbpGN/GRR8UKbRvk1ayDceKgh0=",
     "zh:24a51b7d9e386710f2fea540c67b8c68f177635e2644263fc22ef0343eea3f1f",
     "zh:3d7365e861879191aa28e3b8a0c462aad7804a7aaa42eed4fb36628a4a09cb41",
     "zh:4dd7e7140c748fbfac80db330175d25466c0594621b6c5fa01493758c34c71e1",
@@ -17,6 +18,7 @@ provider "registry.terraform.io/ciscodevnet/intersight" {
 provider "registry.terraform.io/hashicorp/vault" {
   version = "5.3.0"
   hashes = [
+    "h1:1SnIBQOFE/IS6hw7lTZz8VYE2iUvueJ2yl1izoF+8KE=",
     "h1:sXRF+sHZ2D/XG/d1hrKF1op4noS1qvvhHzmyUjZSz9E=",
     "zh:23575c48c28afba789e8b8242f0cafb3f4893fddffca7c48fde97c4d7b1d5066",
     "zh:2bccfac0b16675c380621ee5b96cf835cbf5e675a3113919964fbdf66c531db2",

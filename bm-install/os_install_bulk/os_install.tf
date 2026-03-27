@@ -68,9 +68,6 @@ resource "intersight_os_install" "os_install" {
     ip_configuration {
       additional_properties = jsonencode({
         IpV4Config = {
-          # IpAddress = var.os_ipv4_addr
-          # Netmask   = var.os_ipv4_netmask
-          # Gateway   = var.os_ipv4_gateway
           IpAddress = each.value.os_ipv4_addr
           Netmask   = each.value.os_ipv4_netmask
           Gateway   = each.value.os_ipv4_gateway
@@ -79,10 +76,6 @@ resource "intersight_os_install" "os_install" {
       object_type = "os.Ipv4Configuration"
     }
     is_root_password_crypted = false
-    # nameserver               = var.os_ipv4_dns_ip
-    # root_password            = var.os_root_password
-    # nr_source                = var.os_answers_nr_source
-    # network_device           = var.os_answers_netDev
     nameserver               = each.value.os_ipv4_dns_ip
     root_password            = each.value.os_root_password
     nr_source                = var.os_answers_nr_source
