@@ -50,7 +50,7 @@ def getUcsIntersightData(infile, pw):
     svrSpecDict = {}
     svrSpecList = []
     serverSummaryURL = intersightUrl + "/api/v1/compute/PhysicalSummaries?$inlinecount=allpages"
-    virtMachinestUrl = intersightUrl + f'/api/v1/search/SearchItems?$filter=(Host.Moid eq \'{args.host_moid}\')'
+    #virtMachinestUrl = intersightUrl + f'/api/v1/search/SearchItems?$filter=(Host.Moid eq \'{args.host_moid}\')'
     #print(serverSummaryURL)
     response = requests.get(serverSummaryURL, verify=False, auth=AUTH)
     serverSummaryJson = response.json()
