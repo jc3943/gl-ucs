@@ -58,7 +58,7 @@ def getUcsIntersightData(infile, pw):
         svrSpecDict = {}
         for k in range(len(csvDict)):
             if (csvDict[k]['cimcIp'] == serverSummaryJson['Results'][i]['MgmtIpAddress']):
-                orgURL = intersightUrl + f'/api/v1/organization/Organizations?$filter=(Host.Name eq \'{csvDict[k]['orgName']})'
+                orgURL = intersightUrl + f"/api/v1/organization/Organizations?$filter=(Host.Name eq \'{csvDict[k]['orgName']}\')"
                 orgJson = requests.get(orgURL, verify=False, auth=AUTH).json()
                 svrSpecDict['org_moid'] = orgJson['Results'][0]['Moid']
                 svrSpecDict['obj_type'] = 'compute.RackUnit'
