@@ -26,7 +26,6 @@ output "server_moid" {
   value = data.intersight_compute_physical_summary.server.results[0].moid
 }
 
-
 resource "intersight_os_install" "os_install" {
   for_each = {
     for server in local.servers : server.os_hostname => server

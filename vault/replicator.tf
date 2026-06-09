@@ -19,6 +19,7 @@ provider "vault" {
 provider "vault" {
   alias   = "secondary"
   address = "http://172.16.112.6:8200"
+  # address = "http://172.0.1.50:8200"
 }
 
 # Dynamically list all secrets from the primary Vault

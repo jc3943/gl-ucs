@@ -8,7 +8,7 @@ import urllib.parse
 import os
 import csv
 
-API_BASE_URL = "http://172.0.1.51:5002"
+API_BASE_URL = "http://172.16.112.0:5002"
 #API_BASE_URL = "http://localhost:5002"
 
 

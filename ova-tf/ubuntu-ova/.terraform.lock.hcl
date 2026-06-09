@@ -4,6 +4,7 @@
 provider "registry.terraform.io/hashicorp/vault" {
   version = "4.5.0"
   hashes = [
+    "h1:aFGL/zX7kY3EHfDYg83x/wEVr3LHVsT56nen28i7CLo=",
     "h1:oKiQcEqj/HTCMzgGtZ531D/jnnM0i7iguSM8pU7aK8U=",
     "zh:0a9301aa6a9b59db97682be568329526033bb50a4a308ad695c2a1877c1241c3",
     "zh:0f8fee69ea4eaa27b86a391edc7de8e8b215e3c48f7074bab799986d5f707014",
@@ -24,6 +25,7 @@ provider "registry.terraform.io/hashicorp/vsphere" {
   version = "2.10.0"
   hashes = [
     "h1:ARwZGuls+TBnJ7ZSQiHhQPNxR8upZ1uR0xEXfgEMjlU=",
+    "h1:OwByuyO8jktZzIGKqa5I0O+zkhcTzNm7NJp2HKlwdbU=",
     "zh:01dfd5bee0824de89202dc8689beef7465ddf1a104269826e69918e61bc40161",
     "zh:0fa82a384b25a58b65523e0ea4768fa1212b1f5cfc0c9379d31162454fedcc9d",
     "zh:171f9cd2008c75455b6797c7d0ca92fcdf23fb4dd47030e0e2eb4fa06cf45a57",

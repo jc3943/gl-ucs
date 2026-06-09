@@ -38,12 +38,12 @@ data "vsphere_network" "network2" {
 
 ## Remote OVF/OVA Source
 data "vsphere_ovf_vm_template" "ovfRemote" {
-  name              = "jammy-server-cloudimg-amd64.ova"
+  name              = "CatC-SW-EVA-2.3.7.10-75300.10.ova"
   disk_provisioning = "thick"
   resource_pool_id  = data.vsphere_resource_pool.default.id
   datastore_id      = data.vsphere_datastore.datastore.id
   host_system_id    = data.vsphere_host.host.id
-  remote_ovf_url    = "http://172.16.112.8/ubuntu/jammy-server-cloudimg-amd64.ova"
+  remote_ovf_url    = "http://172.16.112.8/catalystCenter/CatC-SW-EVA-2.3.7.10-75300.10.ova"
   ovf_network_map = {
     "Network 1" : data.vsphere_network.network.id,
     "Network 2" : data.vsphere_network.network2.id
@@ -52,14 +52,14 @@ data "vsphere_ovf_vm_template" "ovfRemote" {
 
 ## Deployment of VM from Remote OVF
 resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
-  name                 = "ubuntu-jammy-test"
+  name                 = "TF-CatC-SW"
   datacenter_id        = data.vsphere_datacenter.datacenter.id
   datastore_id         = data.vsphere_datastore.datastore.id
   host_system_id       = data.vsphere_host.host.id
   resource_pool_id     = data.vsphere_resource_pool.default.id
   guest_id             = data.vsphere_ovf_vm_template.ovfRemote.guest_id
-  num_cpus             = 2
-  memory               = 8192
+  num_cpus             = 32
+  memory               = 256000
   dynamic "network_interface" {
     for_each = data.vsphere_ovf_vm_template.ovfRemote.ovf_network_map
     content {
@@ -78,9 +78,17 @@ resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
 
   vapp {
     properties = {
-      "hostname"    = data.vault_generic_secret.ubuntu.data["ubuntu-username"],
-      "password"    = data.vault_generic_secret.ubuntu.data["ubuntu-password"],
-      "public-keys" = data.vault_generic_secret.ubuntu.data["public-keys"]
+      # "hostname"    = data.vault_generic_secret.ubuntu.data["ubuntu-username"],
+      # "password"    = data.vault_generic_secret.ubuntu.data["ubuntu-password"],
+      # "public-keys" = data.vault_generic_secret.ubuntu.data["ubuntu-ssh-keys"]
+      "guestinfo.CatcHostname"        = "tf-catc-sw",
+      "guestinfo.CatcNetworkIP"       = "172.16.14.236",
+      "guestinfo.CatcNetworkPrefix"   = tostring(24),
+      "guestinfo.CatcNetworkGateway"  = "172.16.14.254",
+      "guestinfo.CatcNetworkDNS"      = "172.16.10.100",
+      "guestinfo.ciscoNtpServer"      = "172.20.1.254",
+      "guestinfo.ciscoSystemAdminPassword" = data.vault_generic_secret.ubuntu.data["dnac-password"],
+      "guestinfo.ciscoCliPassword"         = data.vault_generic_secret.ubuntu.data["dnac-password"]
     }
   }
   cdrom {

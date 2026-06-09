@@ -29,17 +29,7 @@ AUTH = IntersightAuth(
     api_key_id=key_id
     )
 
-# AUTH = IntersightAuth(
-#     secret_key_string='''
-# -----BEGIN EC PRIVATE KEY-----
-# MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg1kCol4dB/0svfhos
-# F0FKgfYTwP9RA4ZERmoCTM7P+r2hRANCAATZrXTpYUcCcxBuPDjsJF+Al0gvNKyc
-# 3Q8Zfa3TX2VWxcs4G6Dz15p4DnhvrRORTZn+sR8xuX9Sb0i9OvUTIKBh
-# -----END EC PRIVATE KEY-----
-# ''',
-#     api_key_id='6457bfa47564612d300f0917/6457cbbd7564612d30cb32ab/682fa3bf756461301fd24382'
-# )
-# intersightUrl = "https://dev-intersight.thor.iws.navy.mil"
+
 serverSummaryURL = intersightUrl + "/api/v1/compute/PhysicalSummaries?$inlinecount=allpages"
 
 outFilePath = os.environ['dataPath']
@@ -60,6 +50,7 @@ def getUcsIntersightData(infile, pw):
     svrSpecDict = {}
     svrSpecList = []
     serverSummaryURL = intersightUrl + "/api/v1/compute/PhysicalSummaries?$inlinecount=allpages"
+    virtMachinestUrl = intersightUrl + f'/api/v1/search/SearchItems?$filter=(Host.Moid eq \'{args.host_moid}\')'
     #print(serverSummaryURL)
     response = requests.get(serverSummaryURL, verify=False, auth=AUTH)
     serverSummaryJson = response.json()
@@ -67,6 +58,9 @@ def getUcsIntersightData(infile, pw):
         svrSpecDict = {}
         for k in range(len(csvDict)):
             if (csvDict[k]['cimcIp'] == serverSummaryJson['Results'][i]['MgmtIpAddress']):
+                orgURL = intersightUrl + f'/api/v1/organization/Organizations?$filter=(Host.Name eq \'{csvDict[k]['orgName']})'
+                orgJson = requests.get(orgURL, verify=False, auth=AUTH).json()
+                svrSpecDict['org_moid'] = orgJson['Results'][0]['Moid']
                 svrSpecDict['obj_type'] = 'compute.RackUnit'
                 svrSpecDict['os_ipv4_addr'] = csvDict[k]['hostIp']
                 svrSpecDict['os_ipv4_netmask'] = csvDict[k]['hostNetmask']

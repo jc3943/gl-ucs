@@ -2,8 +2,6 @@ data "intersight_organization_organization" "org" {
   name = var.org_name
 }
 
-
-
 data "intersight_os_configuration_file" "os_config" {
     name = var.os_config_file
 }
