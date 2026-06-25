@@ -29,12 +29,12 @@ data "vsphere_network" "network" {
 
 ## Remote OVF/OVA Source
 data "vsphere_ovf_vm_template" "ovfRemote" {
-  name              = "aci-apic-dk9.6.0.5h.ova"
+  name              = "aci-apic-dk9.6.2.2e.ova"
   disk_provisioning = "thick"
   resource_pool_id  = data.vsphere_resource_pool.default.id
   datastore_id      = data.vsphere_datastore.datastore.id
   host_system_id    = data.vsphere_host.host.id
-  remote_ovf_url    = "http://172.0.1.10:8080/aci/aci-apic-dk9.6.0.5h.ova"
+  remote_ovf_url    = "http://172.0.1.10:9080/aci/6.2.2e/aci-apic-dk9.6.2.2e.ova"
   ovf_network_map = {
     "Network 1" : data.vsphere_network.network.id
   }
@@ -42,7 +42,7 @@ data "vsphere_ovf_vm_template" "ovfRemote" {
 
 ## Deployment of VM from Remote OVF
 resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
-  name                 = "apic605h-test"
+  name                 = "apic622e-test"
   datacenter_id        = data.vsphere_datacenter.datacenter.id
   datastore_id         = data.vsphere_datastore.datastore.id
   host_system_id       = data.vsphere_host.host.id
@@ -62,6 +62,9 @@ resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
     remote_ovf_url            = data.vsphere_ovf_vm_template.ovfRemote.remote_ovf_url
     disk_provisioning         = data.vsphere_ovf_vm_template.ovfRemote.disk_provisioning
     ovf_network_map           = data.vsphere_ovf_vm_template.ovfRemote.ovf_network_map
+    deployment_option         = "APIC-SERVER-VMWARE-M1"
+    ip_allocation_policy      = "dhcpPolicy"
+    ip_protocol               = "IPv4"
   }
 
   vapp {
@@ -81,7 +84,7 @@ resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
       disk[0].io_share_count,
       disk[1].io_share_count,
       disk[2].io_share_count,
-      vapp[0].properties,
+      #vapp[0].properties,
     ]
   }
 }
