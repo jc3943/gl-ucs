@@ -39,7 +39,7 @@
       <fieldForValue>project_name</fieldForValue>
     </input>
 
-    <input type="dropdown" token="author_tok" searchWhenChanged="true">
+    <input type="multiselect" token="author_tok" searchWhenChanged="true">
       <label>Author</label>
       <default>*</default>
       <choice value="*">All Authors</choice>
@@ -55,6 +55,9 @@
       </search>
       <fieldForLabel>author_name</fieldForLabel>
       <fieldForValue>author_name</fieldForValue>
+      <valuePrefix>author_name="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
     </input>
 
     <input type="dropdown" token="namespace_tok" searchWhenChanged="true">
@@ -87,7 +90,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count
           </query>
@@ -107,7 +110,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | dc project_name
           </query>
@@ -125,7 +128,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | dc author_email
           </query>
@@ -142,7 +145,7 @@
           <query>
             index=* sourcetype=vcs_commit source_platform=gitlab
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count
           </query>
@@ -162,7 +165,7 @@
           <query>
             index=* sourcetype=vcs_commit source_platform=github
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count
           </query>
@@ -183,7 +186,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | timechart span=1d count
             | stats avg(count) as avg
@@ -207,7 +210,7 @@
           <query>
             index=* sourcetype=vcs_commit
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | timechart span=1d count by source_platform
           </query>
@@ -231,7 +234,7 @@
           <query>
             index=* sourcetype=vcs_commit
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count by source_platform
           </query>
@@ -256,7 +259,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count as commits by project_name source_platform
             | sort -commits
@@ -282,7 +285,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count as commits by author_name source_platform
             | sort -commits
@@ -313,7 +316,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count as commits by source_platform project_namespace project_name author_name author_email
             | sort -commits
@@ -350,7 +353,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | timechart span=1d count by project_name limit=8 useother=false
           </query>
@@ -372,7 +375,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | timechart span=1d count by author_name limit=8 useother=false
           </query>
@@ -399,7 +402,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | eval dow_num = strftime(_time, "%w")
             | eval day_of_week = case(
@@ -429,7 +432,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | stats count as commits by project_namespace source_platform
             | sort -commits
@@ -459,7 +462,7 @@
             index=* sourcetype=vcs_commit
               source_platform=$platform_tok$
               project_name=$project_tok$
-              author_name=$author_tok$
+              ($author_tok$)
               project_namespace=$namespace_tok$
             | sort -_time
             | head 50

@@ -62,6 +62,7 @@ from datetime import datetime, timezone
 from typing import Generator, Iterator
 
 import requests
+import urllib3
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Constants
@@ -124,6 +125,8 @@ def _get_with_retry(session: requests.Session, url: str,
         try:
             resp = session.get(url, params=params, timeout=30)
             if resp.status_code < 500:
+                if not resp.ok:
+                    print(f"  WARN: HTTP {resp.status_code} on {url}: {resp.text[:300]}", file=sys.stderr)
                 return resp
             print(f"  WARN: {resp.status_code} on {url} (attempt {attempt})", file=sys.stderr)
         except requests.RequestException as exc:
@@ -148,10 +151,11 @@ def iso_to_epoch(iso: str) -> float:
 # ─────────────────────────────────────────────────────────────────────────────
 
 class GitLabClient:
-    def __init__(self, base_url: str, token: str):
+    def __init__(self, base_url: str, token: str, verify_ssl: bool = True):
         self.base = base_url.rstrip("/")
         self.session = requests.Session()
         self.session.headers.update({"PRIVATE-TOKEN": token})
+        self.session.verify = verify_ssl
 
     def _paginate(self, path: str, params: dict | None = None) -> list:
         url    = f"{self.base}/api/v4/{path.lstrip('/')}"
@@ -291,7 +295,6 @@ class GitHubClient:
             # Fetch every repo the token can see
             print("  [GitHub] Fetching all accessible repos (user + orgs)…", flush=True)
             all_repos = self._paginate("user/repos", {
-                "type":        "all",
                 "affiliation": "owner,collaborator,organization_member",
             })
 
@@ -395,13 +398,14 @@ class GitHubClient:
 class SplunkHECClient:
     def __init__(self, hec_url: str, token: str,
                  index: str, source: str, sourcetype: str,
-                 dry_run: bool = False):
+                 dry_run: bool = False, verify_ssl: bool = True):
         self.url        = hec_url.rstrip("/") + "/services/collector/event"
         self.index      = index
         self.source     = source
         self.sourcetype = sourcetype
         self.dry_run    = dry_run
         self.session    = requests.Session()
+        self.session.verify = verify_ssl
         self.session.headers.update({
             "Authorization": f"Splunk {token}",
             "Content-Type":  "application/json",
@@ -495,7 +499,13 @@ def main() -> None:
                         help="Only include projects whose full name contains this substring")
     parser.add_argument("--dry-run",        action="store_true",
                         help="Fetch data but do NOT send to Splunk")
+    parser.add_argument("--no-verify",      action="store_true",
+                        help="Disable SSL certificate verification (for self-signed certs)")
     args = parser.parse_args()
+
+    if args.no_verify:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        print("WARNING: SSL certificate verification is disabled.", flush=True)
 
     sources = [s.strip().lower() for s in args.sources.split(",") if s.strip()]
 
@@ -513,6 +523,7 @@ def main() -> None:
         source         = optional_env("SPLUNK_SOURCE",     "vcs:commits"),
         sourcetype     = optional_env("SPLUNK_SOURCETYPE", "vcs_commit"),
         dry_run        = args.dry_run,
+        verify_ssl     = not args.no_verify,
     )
 
     # ── Source iterators ────────────────────────────────────────────────────
@@ -521,8 +532,9 @@ def main() -> None:
     if "gitlab" in sources:
         print("\n── GitLab ─────────────────────────────────────────────", flush=True)
         gl = GitLabClient(
-            base_url = require_env("GITLAB_URL"),
-            token    = require_env("GITLAB_TOKEN"),
+            base_url   = require_env("GITLAB_URL"),
+            token      = require_env("GITLAB_TOKEN"),
+            verify_ssl = not args.no_verify,
         )
         iterators.append(
             gl.iter_commit_events(args.project_filter, args.since, args.until)

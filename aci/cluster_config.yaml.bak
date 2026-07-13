@@ -1,0 +1,30 @@
+# ACI Fabric Cluster Bootstrapping Configuration
+cluster:
+  fabricName: "Sandbox-ACI-Fabric"
+  layer3: false
+  fabricId: 1
+  clusterSize: 3
+  infraVlan: 3966
+  gipoPool: "225.0.0.0/15" # Multicast pool required by 6.x
+  adminPassword: "YourSecureAdminPassword123!"
+  tepPool: "10.66.0.0/16"
+  nodeId: 1
+  nodeName: "apic1"
+  oobIpv4Address: "172.0.1.136"
+  oobIpv4Gateway: "172.0.1.1"
+  oobIpv4Netmask: "255.255.255.0"
+
+# Definition of all controllers in the cluster
+controllers:
+  - id: "1"
+    name: "apic1"
+    mgmtIp: "172.0.1.136/24"
+    mgmtGateway: "172.0.1.254"
+  - id: "2"
+    name: "apic2"
+    mgmtIp: "172.0.1.137/24"
+    mgmtGateway: "172.0.1.254"
+  - id: "3"
+    name: "apic3"
+    mgmtIp: "172.0.1.138/24"
+    mgmtGateway: "172.0.1.254"

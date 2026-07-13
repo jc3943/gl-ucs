@@ -1,0 +1,4 @@
+vapic_ova_file,vapic_ova_url,vapic_name,vapic_ip,vapic_gw,vapic_oob_nic,vapic_infra_nic,datacenter,cluster,datastore,resource_pool,esxi_host
+aci-apic-dk9.6.2.2e.ova,http://172.0.1.10:9080/aci/6.2.2e/aci-apic-dk9.6.2.2e.ova,test-vapic-01,172.0.1.136/24,172.0.1.254,CG61|CL-PODS|EPG_POD1,CG61|CL-PODS|EPG_POD2,HX-DEV,hx-dev,DEV,default,172.16.14.21
+aci-apic-dk9.6.2.2e.ova,http://172.0.1.10:9080/aci/6.2.2e/aci-apic-dk9.6.2.2e.ova,test-vapic-02,172.0.1.137/24,172.0.1.254,CG61|CL-PODS|EPG_POD1,CG61|CL-PODS|EPG_POD2,HX-DEV,hx-dev,DEV,default,172.16.14.22
+aci-apic-dk9.6.2.2e.ova,http://172.0.1.10:9080/aci/6.2.2e/aci-apic-dk9.6.2.2e.ova,test-vapic-03,172.0.1.138/24,172.0.1.254,CG61|CL-PODS|EPG_POD1,CG61|CL-PODS|EPG_POD2,HX-DEV,hx-dev,DEV,default,172.16.14.23

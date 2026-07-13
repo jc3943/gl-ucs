@@ -1,0 +1,30 @@
+# APIC cluster bootstrap — virtual APIC on ESXi, Layer 2 (directly attached)
+# Consumed by apic_bootstrap.py  (6.0(2)+ /api/workflows/v1 schema)
+
+cluster:
+  fabricName: "Sandbox-ACI-Fabric"
+  fabricId: 1
+  clusterSize: 3
+  layer3: false                                 # directly attached to leaf switches
+  infraVlan: 3966
+  gipoPool: "225.0.0.0/15"                       # multicast/GIPO pool (required by 6.x)
+  tepPool: "10.66.0.0/16"                        # single-pod TEP pool (moved out of a pods list)
+
+# One entry per controller. mgmtIp carries the /mask; gateway is the OOB gateway.
+# Mirrors the vapic_ip / vapic_gw values from your Terraform CSV.
+controllers:
+  - id: "1"
+    name: "apic1"
+    podId: 1
+    mgmtIp: "172.0.1.136/24"
+    mgmtGateway: "172.0.1.254"
+  - id: "2"
+    name: "apic2"
+    podId: 1
+    mgmtIp: "172.0.1.137/24"
+    mgmtGateway: "172.0.1.254"
+  - id: "3"
+    name: "apic3"
+    podId: 1
+    mgmtIp: "172.0.1.138/24"
+    mgmtGateway: "172.0.1.254"
