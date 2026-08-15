@@ -26,9 +26,11 @@ resource "null_resource" "rke2_install" {
       # 2. Prepare RHEL 8.9 for RKE2 (Enable necessary repos)
       "yum update -y",
       "systemctl stop firewalld && systemctl disable firewalld", # RKE2 manages its own networking
+      "swapoff -a && sed -i '/ swap / s/^\\(.*\\)$/#\\1/g' /etc/fstab",
+      "grubby --update-kernel=ALL --args='systemd.unified_cgroup_hierarchy=1'",
 
       # 2. Enable the EXACT repos needed for container-selinux
-      "subscription-manager repos --enable=rhel-8-for-x86_64-baseos-rpms --enable=rhel-8-for-x86_64-appstream-rpms --enable=codeready-builder-for-rhel-8-x86_64-rpms",
+      "subscription-manager repos --enable=rhel-9-for-x86_64-baseos-rpms --enable=rhel-9-for-x86_64-appstream-rpms --enable=codeready-builder-for-rhel-9-x86_64-rpms",
       
       # 3. CRITICAL: Clear all dnf/yum metadata to force a fresh look at the new repos
       "dnf clean all",
