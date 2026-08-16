@@ -138,7 +138,7 @@ installOs:
   script:
     - cd bm-install/os_install_bulk
     - terraform init
-    - terraform apply --var-file=../../vars/master/terraform/rhel_install.tfvars -auto-approve
+    - terraform apply --var-file=../../vars/imcPwrOpt/terraform/rhel_install.tfvars -auto-approve
     - cd ../../
     - sleep 120
     - python3 intersight/osInstallStatus.py -u https://dev-intersight.thor.iws.navy.mil
