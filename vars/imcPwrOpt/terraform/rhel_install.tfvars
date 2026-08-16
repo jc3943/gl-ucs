@@ -5,7 +5,7 @@ server_serial = "WZP28310Q1Q"
 os_config_file = "RHEL8ConfigFile"
 
 os_repo_name = "RHEL-9.6"
-scu_repo_name = "SCU-6.3.2c"
+scu_repo_name = "SCU-7.1.7"
 
 # os_install
 # Configuration Source : Cisco
