@@ -13,7 +13,7 @@ resource "null_resource" "rke2_install" {
     user     = local.os_username # Or your cloud-init user
     password = local.os_password
     host     = "172.16.115.41"
-    timeout      = "15m"
+    timeout      = "30m"
   }
 
   provisioner "remote-exec" {
