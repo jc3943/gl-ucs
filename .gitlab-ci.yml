@@ -129,7 +129,7 @@ getSvrMoids:
 #   script:
 #     - cd bm-install/create_repos
 #     - terraform init
-#     - terraform apply --var-file=../../vars/master/terraform/create_repos.tfvars -auto-approve
+#     - terraform apply --var-file=../../vars/imcPwrOpt/terraform/create_repos.tfvars -auto-approve
 #     - cd ../../
 
 installOs:
