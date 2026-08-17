@@ -36,7 +36,8 @@ resource "null_resource" "rke2_install" {
       "dnf install -y container-selinux",
 
       # 3. Install RKE2 using the official script
-      "curl -sfL https://get.rke2.io | sh -",
+      #"curl -sfL https://get.rke2.io | sh -",
+      "curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION=v1.30.4+rke2r1 sh -",
 
       # 4. Create RKE2 Config (Replace token and server-ip as needed)
       "mkdir -p /etc/rancher/rke2",
