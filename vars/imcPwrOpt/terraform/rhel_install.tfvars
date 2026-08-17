@@ -2,7 +2,7 @@
 # Common
 org_name = "default"
 #server_serial = "WZP28310Q1Q"
-os_config_file = "RHEL98ConfigFile"
+os_config_file = "RHEL8ConfigFile"
 
 os_repo_name = "RHEL-8.9"
 scu_repo_name = "SCU-6.3.2c"
